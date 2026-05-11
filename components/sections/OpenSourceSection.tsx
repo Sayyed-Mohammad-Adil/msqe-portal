@@ -2,6 +2,7 @@ import { SectionHeader } from "../ui/SectionHeader";
 import { Github, Package, Shield, Container } from "lucide-react";
 import { NeonCard } from "../ui/NeonCard";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export function OpenSourceSection() {
   return (
@@ -53,10 +54,15 @@ export function OpenSourceSection() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-          <button className="flex w-full sm:w-auto items-center justify-center gap-3 bg-neon-cyan text-dark-950 px-8 py-4 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-neon-cyan/20 transition-all active:scale-95">
+          <Link
+            href="https://github.com/Sayyed-Mohammad-Adil/msqe-enterprise"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex w-full sm:w-auto items-center justify-center gap-3 bg-neon-cyan text-dark-950 px-8 py-4 rounded-xl font-bold hover:brightness-110 shadow-lg shadow-neon-cyan/20 transition-all active:scale-95"
+          >
             <Github className="w-5 h-5" />
             Star on GitHub
-          </button>
+          </Link>
           <div className="group relative">
             <div className="flex max-w-full items-center gap-3 sm:gap-4 bg-dark-900 border border-white/10 px-4 sm:px-6 py-4 rounded-xl font-mono text-xs sm:text-sm overflow-x-auto">
               <span className="text-slate-500">$</span>

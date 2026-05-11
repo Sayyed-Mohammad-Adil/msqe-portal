@@ -84,7 +84,7 @@ const navLinks = [
             npm
           </a>
           <Link
-            href="https://github.com"
+            href="https://github.com/Sayyed-Mohammad-Adil/msqe-enterprise"
             target="_blank"
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/15 text-sm font-medium hover:bg-white/5 transition-colors"
           >
@@ -129,7 +129,7 @@ const navLinks = [
             ))}
             <div className="mt-auto flex flex-col gap-4">
               <Link
-                href="https://github.com"
+                href="https://github.com/Sayyed-Mohammad-Adil/msqe-enterprise"
                 className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/15 text-lg font-medium"
                 onClick={() => setIsMobileMenuOpen(false)}
               >

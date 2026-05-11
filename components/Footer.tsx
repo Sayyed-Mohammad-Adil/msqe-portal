@@ -51,7 +51,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="https://github.com" target="_blank" className="text-sm text-slate-400 hover:text-white transition-colors">
+                <Link href="https://github.com/Sayyed-Mohammad-Adil/msqe-enterprise" target="_blank" className="text-sm text-slate-400 hover:text-white transition-colors">
                   GitHub
                 </Link>
               </li>
@@ -87,7 +87,7 @@ export function Footer() {
             <h4 className="text-white font-mono text-xs uppercase tracking-widest font-bold mb-6">Connect</h4>
             <div className="flex gap-4">
               <Link 
-                href="https://github.com" 
+                href="https://github.com/Sayyed-Mohammad-Adil/msqe-enterprise" 
                 target="_blank"
                 className="p-2 bg-white/5 border border-white/10 rounded-lg text-slate-400 hover:text-white hover:border-white/20 transition-all"
               >

@@ -226,9 +226,14 @@ export function HeroSection() {
                 npm install msqe-client
                 {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>
-              <button className="flex items-center justify-center gap-2 border border-white/15 px-5 sm:px-6 py-3.5 rounded-lg text-white font-medium hover:bg-white/5 transition-all">
+              <Link
+                href="https://github.com/Sayyed-Mohammad-Adil/msqe-enterprise"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 border border-white/15 px-5 sm:px-6 py-3.5 rounded-lg text-white font-medium hover:bg-white/5 transition-all"
+              >
                 View on GitHub →
-              </button>
+              </Link>
             </motion.div>
 
             <motion.div variants={itemVariants} className="flex flex-wrap justify-center lg:justify-start gap-3">

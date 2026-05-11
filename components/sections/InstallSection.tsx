@@ -80,7 +80,7 @@ export function InstallSection() {
                     num={1}
                     title="Clone & Install"
                     desc="Clone the repo and install all dependencies with one command."
-                    code={`git clone https://github.com/yourusername/msqe\ncd msqe\nnpm run install:all`}
+                    code={`git clone https://github.com/Sayyed-Mohammad-Adil/msqe-enterprise\ncd msqe-enterprise\nnpm run install:all`}
                     color="cyan"
                   />
                   <Step
