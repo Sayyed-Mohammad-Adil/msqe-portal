@@ -93,6 +93,11 @@ const navLinks = [
           </Link>
           <Link
             href="#install"
+            onClick={(e) => {
+              e.preventDefault();
+              const element = document.getElementById('install');
+              element?.scrollIntoView({ behavior: 'smooth' });
+            }}
             className="px-4 py-1.5 bg-neon-cyan text-dark-950 font-bold text-sm rounded-lg hover:brightness-110 shadow-lg shadow-neon-cyan/20 transition-all active:scale-95"
           >
             Get Started →
@@ -138,7 +143,12 @@ const navLinks = [
               <Link
                 href="#install"
                 className="px-4 py-3 bg-neon-cyan text-dark-950 font-bold text-lg rounded-xl text-center"
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsMobileMenuOpen(false);
+                  const element = document.getElementById('install');
+                  element?.scrollIntoView({ behavior: 'smooth' });
+                }}
               >
                 Get Started →
               </Link>

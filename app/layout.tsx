@@ -26,8 +26,11 @@ const syne = Syne({
 });
 
 export const metadata: Metadata = {
-  title: "MSQE — Lightweight Message Queue Engine",
+  title: "MSQE",
   description: "Partition-based delivery. Wildcard routing. QoS levels. Zero infrastructure. Just npm install.",
+  icons: {
+    icon: "/logo.svg",
+  },
   openGraph: {
     title: "MSQE — Lightweight Message Queue Engine",
     description: "Partition-based delivery. Wildcard routing. QoS levels. Zero infrastructure. Just npm install.",
