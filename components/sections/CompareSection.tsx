@@ -275,8 +275,8 @@ export function CompareSection() {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeader
-          title="MSQE vs"
-          highlight="Messaging Systems"
+          title="Where MSQE"
+          highlight="Stands Out"
           subtitle="Built for realtime distributed systems without enterprise-level infrastructure complexity."
         />
 

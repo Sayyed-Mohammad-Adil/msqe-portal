@@ -5,21 +5,38 @@ import { SectionHeader } from "../ui/SectionHeader";
 import { CodeBlock } from "../ui/CodeBlock";
 import * as Tabs from "@radix-ui/react-tabs";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Server, Terminal, Monitor, Layout, ArrowRight, Container } from "lucide-react";
 
 export function InstallSection() {
   const [dockerMode, setDockerMode] = useState<'single'|'compose'>('single');
+  const [activeTab, setActiveTab] = useState<'single'|'pm2'|'cluster'|'docker'>('single');
+
+  useEffect(() => {
+    const openDockerTab = () => {
+      setActiveTab('docker');
+      setDockerMode('compose');
+    };
+
+    window.addEventListener('msqe:open-docker', openDockerTab);
+    if (window.location.hash === '#install-docker') {
+      openDockerTab();
+      document.getElementById('install')?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    return () => window.removeEventListener('msqe:open-docker', openDockerTab);
+  }, []);
+
   return (
     <section id="install" className="py-16 sm:py-24 bg-dark-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeader
-          title="Get Running in"
+          title="Boot up in"
           highlight="60 Seconds"
-          subtitle="Three deployment modes. Same binary. Only .env changes."
+          subtitle="Unified codebase. Multiple execution environments."
         />
 
-        <Tabs.Root defaultValue="single" className="w-full">
+        <Tabs.Root value={activeTab} onValueChange={(value) => setActiveTab(value as 'single'|'pm2'|'cluster'|'docker')} className="w-full">
           <Tabs.List className="flex max-w-full gap-2 mb-8 sm:mb-12 bg-dark-900 p-1.5 rounded-2xl border border-white/5 w-full sm:w-fit mx-auto overflow-x-auto">
             <Tabs.Trigger
               value="single"
@@ -137,12 +154,12 @@ export function InstallSection() {
                         </thead>
                         <tbody className="divide-y divide-white/5">
                           <tr>
-                            <td className="px-4 py-3 text-white">Dashboard</td>
+                            <td className="px-4 py-3 text-white">Studio</td>
                             <td className="px-4 py-3 text-neon-cyan">3030</td>
                             <td className="px-4 py-3 text-slate-500">HTTP</td>
                           </tr>
                           <tr>
-                            <td className="px-4 py-3 text-white">Admin API</td>
+                            <td className="px-4 py-3 text-white">Engine</td>
                             <td className="px-4 py-3 text-neon-cyan">8081</td>
                             <td className="px-4 py-3 text-slate-500">REST</td>
                           </tr>

@@ -29,7 +29,12 @@ export const metadata: Metadata = {
   title: "MSQE",
   description: "Partition-based delivery. Wildcard routing. QoS levels. Zero infrastructure. Just npm install.",
   icons: {
-    icon: "/logo.svg",
+    icon: [
+      { url: "/logo.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/logo.svg",
   },
   openGraph: {
     title: "MSQE — Lightweight Message Queue Engine",

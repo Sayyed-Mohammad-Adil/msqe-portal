@@ -98,7 +98,7 @@ publisher.on('ready', () => {
     const interval = setInterval(() => {
       // Start simulation flow
       setSimStep(1);
-      
+
       setTimeout(() => setSimStep(2), 600);
       setTimeout(() => setSimStep(3), 1200);
       setTimeout(() => {
@@ -127,12 +127,11 @@ publisher.on('ready', () => {
     <section id="demo" className="py-16 sm:py-24 bg-dark-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeader
-          title="Live"
-          highlight="Demo"
-          badge="Interactive"
-          subtitle="See MSQE in action — interactive code playground and live visualization"
+          title="Code"
+          highlight="Playground"
+          badge="Execution"
+          subtitle="Code execution and runtime visualization of MSQE. See how messages flow through the system in real time."
         />
-
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
           {/* Left Column: Code Tabs */}
           <Tabs.Root defaultValue="publisher" className="w-full">
@@ -153,17 +152,17 @@ publisher.on('ready', () => {
             </Tabs.List>
 
 
-              {Object.entries(codeExamples).map(([key, code]) => (
-                <Tabs.Content key={key} value={key} asChild>
-                  <motion.div
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <CodeBlock code={code} title={key + ".ts"} />
-                  </motion.div>
-                </Tabs.Content>
-              ))}
+            {Object.entries(codeExamples).map(([key, code]) => (
+              <Tabs.Content key={key} value={key} asChild>
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <CodeBlock code={code} title={key + ".ts"} />
+                </motion.div>
+              </Tabs.Content>
+            ))}
 
           </Tabs.Root>
 
@@ -274,7 +273,7 @@ publisher.on('ready', () => {
                       <span className={cn(
                         "px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-tighter",
                         msg.topic === "orderCreated" ? "bg-neon-cyan/20 text-neon-cyan" :
-                        msg.topic === "metrics" ? "bg-neon-amber/20 text-neon-amber" : "bg-neon-purple/20 text-neon-purple"
+                          msg.topic === "metrics" ? "bg-neon-amber/20 text-neon-amber" : "bg-neon-purple/20 text-neon-purple"
                       )}>
                         {msg.topic}
                       </span>

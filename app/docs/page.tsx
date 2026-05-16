@@ -58,7 +58,7 @@ export default function DocsPage() {
             <div className="pt-8">
               <h3 className="text-2xl font-bold text-white mb-4">What is MSQE?</h3>
               <p className="text-lg text-white/60 leading-relaxed mb-6">
-                **MSQE (Message Queue Events)** is a distributed messaging and event-streaming platform built entirely with pure Node.js and native WebSockets.
+                **MSQE (Message Queue Events)** is a distributed messaging and event-streaming platform built entirely with pure Node.js and native Brokers.
               </p>
               <p className="text-lg text-white/60 leading-relaxed mb-6">
                 It is designed for modern event-driven systems that require lightweight infrastructure, realtime communication, distributed clustering, and simple deployment workflows.
@@ -87,7 +87,7 @@ export default function DocsPage() {
             <h2 className="text-3xl font-bold text-white border-b border-white/10 pb-4">Features</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FeatureCard icon={Zap} title="Lightweight Runtime" items={["Pure Node.js implementation", "Native WebSocket transport", "Minimal dependencies", "Low memory footprint", "Fast startup time"]} color="text-yellow-400" />
+              <FeatureCard icon={Zap} title="Lightweight Runtime" items={["Pure Node.js implementation", "Native Broker transport", "Minimal dependencies", "Low memory footprint", "Fast startup time"]} color="text-yellow-400" />
               <FeatureCard icon={Activity} title="Realtime Distributed Messaging" items={["Microservices", "Event-driven systems", "Distributed workers", "Analytics pipelines", "Streaming workloads"]} color="text-purple-400" />
               <FeatureCard icon={Cpu} title="Intelligent Failover" items={["Detects available brokers", "Reconnects during outages", "Automatic failover", "Restores subscriptions"]} color="text-blue-400" />
               <FeatureCard icon={ShieldAlert} title="Reliability Features" items={["Exponential retry backoff", "Offline buffering", "QoS acknowledgements", "Dead letter queue support"]} color="text-red-400" />
@@ -167,7 +167,7 @@ subscriber.run({
           {/* Architecture */}
           <section id="architecture" className="scroll-mt-28 space-y-6">
             <h2 className="text-3xl font-bold text-white border-b border-white/10 pb-4">Architecture</h2>
-            <p className="text-white/60">MSQE uses WebSocket-based broker communication with distributed node coordination, consumer-group balancing, and partition-aware routing.</p>
+            <p className="text-white/60">MSQE uses Broker-based broker communication with distributed node coordination, consumer-group balancing, and partition-aware routing.</p>
             
             <div className="bg-[#0a0a0a] border border-white/10 p-8 rounded-2xl flex justify-center text-neon-cyan font-mono text-xs sm:text-sm overflow-x-auto">
               <pre>{`┌────────────┐      ┌─────────────────┐      ┌────────────┐
@@ -260,7 +260,7 @@ subscriber.disconnect();`}
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   <tr><td className="p-4 text-white/70">Pure Node.js Runtime</td><td className="p-4">✅</td><td className="p-4">❌</td><td className="p-4">❌</td><td className="p-4">❌</td></tr>
-                  <tr><td className="p-4 text-white/70">Native WebSocket Comm.</td><td className="p-4">✅</td><td className="p-4">❌</td><td className="p-4">❌</td><td className="p-4">⚠️</td></tr>
+                  <tr><td className="p-4 text-white/70">Native Broker Comm.</td><td className="p-4">✅</td><td className="p-4">❌</td><td className="p-4">❌</td><td className="p-4">⚠️</td></tr>
                   <tr><td className="p-4 text-white/70">Lightweight Deployment</td><td className="p-4">✅</td><td className="p-4">⚠️</td><td className="p-4">❌</td><td className="p-4">✅</td></tr>
                   <tr><td className="p-4 text-white/70">Distributed Clustering</td><td className="p-4">✅</td><td className="p-4">✅</td><td className="p-4">✅</td><td className="p-4">⚠️</td></tr>
                   <tr><td className="p-4 text-white/70">Replayable Events</td><td className="p-4">✅</td><td className="p-4">⚠️</td><td className="p-4">✅</td><td className="p-4">❌</td></tr>
@@ -291,7 +291,7 @@ subscriber.disconnect();`}
               </div>
               <div className="p-4 border border-white/10 rounded-xl bg-white/5 flex items-center gap-3">
                 <Shield className="w-5 h-5 text-green-400" />
-                <span className="text-white/80 font-medium">Secure WebSocket (WSS)</span>
+                <span className="text-white/80 font-medium">Secure Broker (WSS)</span>
               </div>
               <div className="p-4 border border-white/10 rounded-xl bg-white/5 flex items-center gap-3">
                 <Shield className="w-5 h-5 text-green-400" />

@@ -106,7 +106,7 @@ const navLinks = [
 
         {/* Mobile Toggle */}
         <button
-          className="md:hidden text-white p-1"
+          className="lg:hidden text-white p-1"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X /> : <Menu />}
@@ -120,29 +120,34 @@ const navLinks = [
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-          className="fixed inset-0 top-[60px] bg-dark-950 z-[90] lg:hidden p-6 flex flex-col gap-6 overflow-y-auto"
+            className={cn(
+              "fixed left-0 right-0 bottom-0 bg-dark-950 z-[90] lg:hidden px-6 py-5 flex flex-col overflow-y-auto overscroll-contain",
+              isScrolled ? "top-[57px]" : "top-[73px]"
+            )}
           >
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="text-xl font-mono text-slate-400 hover:text-neon-cyan transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {link.name}
-              </Link>
-            ))}
-            <div className="mt-auto flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className="text-lg font-mono text-slate-400 hover:text-neon-cyan transition-colors py-1.5"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+            <div className="mt-6 pt-5 border-t border-white/10 flex flex-col gap-3">
               <Link
                 href="https://github.com/Sayyed-Mohammad-Adil/msqe-enterprise"
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/15 text-lg font-medium"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/15 text-base font-medium"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <Github /> GitHub
               </Link>
               <Link
                 href="#install"
-                className="px-4 py-3 bg-neon-cyan text-dark-950 font-bold text-lg rounded-xl text-center"
+                className="px-4 py-3 bg-neon-cyan text-dark-950 font-bold text-base rounded-xl text-center"
                 onClick={(e) => {
                   e.preventDefault();
                   setIsMobileMenuOpen(false);

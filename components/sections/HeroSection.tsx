@@ -81,18 +81,38 @@ export function HeroSection() {
   // Terminal Typewriter Effect
   useEffect(() => {
     const lines = [
-      "$ npm install msqe-client",
-      "added 1 package in 1.3s",
+      "$ sudo docker logs msqe-node-1",
+      "🚀 Publisher running at ws://0.0.0.0:9091",
+      "[Cluster] Existing leader found: node-2",
+      "[Cluster] Following leader node-2 at http://msqe-node-2:8081",
+      "[Publisher] Became follower — draining local queues",
+      "[Cluster] Syncing from offset 0",
+      "[Cluster] Sync complete — 0 messages received",
+      "═══════════════════════════════════════",
+      " MSQE v3 - Cluster (3 nodes)",
+      " Broker → ws://localhost:9091",
+      " Control Center → http://localhost:8081",
+      " Node ID → node-1",
+      " Role → follower",
+      " Peers → http://msqe-node-2:8081, http://msqe-node-3:8081",
+      " Quorum → 2 of 3",
+      "═══════════════════════════════════════",
       "",
-      "$ node server.js",
+      "███╗   ███╗███████╗ ██████╗ ███████╗",
+      "████╗ ████║██╔════╝██╔═══██╗██╔════╝",
+      "██╔████╔██║███████╗██║   ██║█████╗  ",
+      "██║╚██╔╝██║╚════██║██║▄▄ ██║██╔══╝  ",
+      "██║ ╚═╝ ██║███████║╚██████╔╝███████╗",
+      "╚═╝     ╚═╝╚══════╝ ╚══▀▀═╝ ╚══════╝",
       "",
-      "════════════════════════════════",
-      "  MSQE v3.0 — Standalone",
-      "  WebSocket  → ws://localhost:9091",
-      "  Admin API  → http://localhost:8081",
-      "  Dashboard  → http://localhost:3030",
-      "════════════════════════════════",
-      "✓ Ready. Open http://localhost:3030",
+      "════════════════════════════════════",
+      "🚀 ENGINE ONLINE",
+      "⚡ Status : READY",
+      "🌐 Server : http://0.0.0.0:8081",
+      "",
+      "════════════════════════════════════",
+      "  MSQE first-time setup required",
+      "  Open: http://localhost:3030/setup",
     ];
 
     let currentLineIndex = 0;
@@ -109,11 +129,11 @@ export function HeroSection() {
             return next;
           });
           currentCharIndex++;
-          timer = setTimeout(type, 25);
+          timer = setTimeout(type, 8);
         } else {
           currentLineIndex++;
           currentCharIndex = 0;
-          timer = setTimeout(type, 400);
+          timer = setTimeout(type, 120);
         }
       }
     };
@@ -159,13 +179,6 @@ export function HeroSection() {
             initial="hidden"
             animate="visible"
           >
-            <motion.div
-              variants={itemVariants}
-              className="inline-flex max-w-full items-center gap-2 px-3 py-1 rounded-full bg-neon-cyan/10 border border-neon-cyan/20 text-neon-cyan text-[10px] sm:text-xs font-mono mb-6"
-            >
-              <span className="w-2 h-2 rounded-full bg-neon-green animate-pulse" />
-              ⚡ Zero infrastructure · Pure Node.js · Open Source
-            </motion.div>
 
             <motion.h1
               variants={itemVariants}
@@ -179,7 +192,7 @@ export function HeroSection() {
               variants={itemVariants}
               className="text-base sm:text-lg md:text-xl text-slate-400 font-body max-w-xl mx-auto lg:mx-0 mb-8 sm:mb-10 leading-relaxed"
             >
-              Partition-based routing. Wildcard topic filters. Three delivery guarantees. Run on 1 server or 50 — same binary, same .env.
+Smart routing, wildcard filtering, and reliable delivery — from single-node setups to distributed clusters.
             </motion.p>
 
             {/* npm badges */}
@@ -224,7 +237,7 @@ export function HeroSection() {
                 className="flex items-center justify-center gap-3 bg-neon-cyan text-dark-950 px-5 sm:px-6 py-3.5 rounded-lg font-mono font-bold hover:brightness-110 shadow-lg shadow-neon-cyan/20 transition-all active:scale-95"
               >
                 npm install msqe-client
-                {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4 hover:cursor-pointer" />}
               </button>
               <Link
                 href="https://github.com/Sayyed-Mohammad-Adil/msqe-enterprise"
@@ -266,17 +279,22 @@ export function HeroSection() {
                   terminal — msqe
                 </div>
               </div>
-              <div className="p-4 sm:p-6 bg-dark-950 font-mono text-xs sm:text-sm min-h-[300px] sm:min-h-[360px] flex flex-col leading-relaxed overflow-x-auto">
+              <div className="p-4 sm:p-6 bg-dark-950 font-mono text-[10px] sm:text-xs h-[300px] sm:h-[360px] flex flex-col leading-relaxed overflow-auto">
                 {terminalText.map((line, i) => {
                   if (!line) return null;
                   let colorClass = "text-slate-400";
+                  let sizeClass = "";
                   if (line.startsWith("$")) colorClass = "text-slate-500";
-                  if (line.includes("Ready") || line.includes("MSQE")) colorClass = "text-neon-green";
-                  if (line.includes("→") || line.includes("package")) colorClass = "text-neon-cyan";
-                  if (line.includes("════")) colorClass = "text-dark-700";
+                  if (line.includes("READY") || line.includes("ENGINE ONLINE") || line.includes("setup required")) colorClass = "text-neon-green";
+                  if (line.includes("Cluster") || line.includes("MSQE")) colorClass = "text-neon-cyan";
+                  if (line.includes("════")) colorClass = "text-slate-500";
+                  if (line.includes("██") || line.includes("╚") || line.includes("╔") || line.includes("║")) sizeClass = "text-[8px] sm:text-[10px] leading-none";
+                  if (/[█╚╔║]/u.test(line)) {
+                    sizeClass = "text-[7px] sm:text-[8px] leading-[1.05] tracking-normal text-slate-200 [font-family:Consolas,'Courier_New',monospace]";
+                  }
 
                   return (
-                    <div key={i} className={cn("mb-1 whitespace-pre", colorClass)}>
+                    <div key={i} className={cn("mb-1 whitespace-pre", colorClass, sizeClass)}>
                       {line}
                     </div>
                   );
@@ -296,7 +314,7 @@ export function HeroSection() {
                 onClick={() => {
                   document.getElementById('install')?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="text-xs text-white/50 hover:text-neon-cyan transition-all flex flex-col items-center justify-center gap-3 group mx-auto"
+                className="text-xs text-white/50 hover:cursor-pointer hover:text-neon-cyan hover:transition-all flex flex-col items-center justify-center gap-3 group mx-auto"
               >
                 <span className="font-mono uppercase tracking-[0.2em]">See how to install</span>
                 <motion.div

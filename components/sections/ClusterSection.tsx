@@ -56,9 +56,9 @@ export function ClusterSection() {
     <section id="cluster" className="py-16 sm:py-24 bg-dark-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeader
-          title="Built for"
+          title="Designed for"
           highlight="Reliability"
-          subtitle="Crash one server. The others don't miss a beat."
+          subtitle="One failure doesn’t stop the system. Traffic reroutes, execution continues."
         />
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-12 sm:mb-16">

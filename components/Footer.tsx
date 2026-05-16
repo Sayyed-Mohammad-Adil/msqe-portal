@@ -64,10 +64,16 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="#install" className="text-sm text-slate-400 hover:text-white transition-colors" onClick={() => {
-                  setTimeout(() => {
-                    document.getElementById('trigger-docker')?.click();
-                  }, 100);
+                <Link href="#install-docker" className="text-sm text-slate-400 hover:text-white transition-colors" onClick={(e) => {
+                  e.preventDefault();
+                  const installSection = document.getElementById('install');
+                  if (!installSection) {
+                    window.location.href = '/#install-docker';
+                    return;
+                  }
+                  installSection.scrollIntoView({ behavior: 'smooth' });
+                  window.history.replaceState(null, '', '#install-docker');
+                  window.dispatchEvent(new Event('msqe:open-docker'));
                 }}>
                   Docker
                 </Link>

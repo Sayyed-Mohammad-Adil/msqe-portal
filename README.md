@@ -1,6 +1,6 @@
 # MSQE Website
 
-`msqe-website` is the public responsive product website for MSQE. It is separate from `msqe-studio`, which is the admin dashboard.
+`msqe-portal` is the public responsive product website for MSQE. It is separate from `msqe-studio`, which is the admin dashboard.
 
 ## Features
 
@@ -18,7 +18,7 @@
 ## Install
 
 ```bash
-cd msqe-website
+cd msqe-portal
 npm install
 ```
 
@@ -31,7 +31,7 @@ npm run dev
 Open:
 
 ```text
-http://localhost:3030
+http://localhost:3000
 ```
 
 ## Build
@@ -76,10 +76,10 @@ npx tsc --noEmit
 
 | App | URL |
 |---|---|
-| Public website | `http://localhost:3030` |
-| Admin dashboard | `http://localhost:3030` |
-| Engine Admin API | `http://localhost:8081` |
-| Engine WebSocket | `ws://localhost:9091` |
+| Msqe Portal | `www.msqe.com` |
+| Msqe Studio | `http://localhost:3030` |
+| Msqe Engine | `http://localhost:8081` |
+| Msqe Broker | `ws://localhost:9091` |
 
 ## Notes
 

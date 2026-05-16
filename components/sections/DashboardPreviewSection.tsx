@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useInView } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { SectionHeader } from "../ui/SectionHeader";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from "recharts";
 import { cn } from "@/lib/utils";
 import React from "react";
-import { 
-  LayoutDashboard, Database, Users2, AlertCircle, Terminal, 
-  ChevronLeft, ChevronRight, RotateCw, ShieldCheck, 
+import {
+  LayoutDashboard, Database, Users2, AlertCircle, Terminal,
+  ChevronLeft, ChevronRight, RotateCw, ShieldCheck,
   Lock, User, Rocket, Zap, Cpu, CheckCircle, ArrowRight,
   Play, Pause, MousePointer2, History, Activity, Settings, Users,
   Theater, HelpCircle, Monitor, Layers, TrendingUp, BarChart3,
@@ -27,7 +27,7 @@ const barData = [
   { n: "orders", A: 94, U: 6 }, { n: "payment", A: 100, U: 0 },
   { n: "metrics", A: 71, U: 29 }, { n: "notif", A: 88, U: 12 },
 ];
-const queueData = [ { n: "P-0", d: 42 }, { n: "P-1", d: 12 }, { n: "P-2", d: 89 }, { n: "P-3", d: 24 } ];
+const queueData = [{ n: "P-0", d: 42 }, { n: "P-1", d: 12 }, { n: "P-2", d: 89 }, { n: "P-3", d: 24 }];
 
 type FlowState = "setup_1" | "setup_2" | "setup_3" | "setup_4" | "setup_5" | "login" | "dashboard";
 type TabId = "overview" | "topics" | "dlq" | "subscribers" | "logs" | "metrics" | "console" | "settings" | "users" | "roles" | "about";
@@ -35,6 +35,8 @@ type TabId = "overview" | "topics" | "dlq" | "subscribers" | "logs" | "metrics" 
 export function DashboardPreviewSection() {
   const [mounted, setMounted] = useState(false);
   const [isAuto, setIsAuto] = useState(true);
+  const [autoRunKey, setAutoRunKey] = useState(0);
+  const [isDemoVisible, setIsDemoVisible] = useState(false);
   const [flowState, setFlowState] = useState<FlowState>("setup_1");
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [typedUsername, setTypedUsername] = useState("");
@@ -43,19 +45,40 @@ export function DashboardPreviewSection() {
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
 
   const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   useEffect(() => { setMounted(true); }, []);
 
+  useEffect(() => {
+    if (!mounted || !sectionRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsDemoVisible(entry.isIntersecting);
+      },
+      { threshold: 0.25 }
+    );
+
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, [mounted]);
+
+  const startAutoPlay = () => {
+    setIsAuto(true);
+    if (isDemoVisible) setAutoRunKey((key) => key + 1);
+  };
+
   // --- Automation Engine ---
   useEffect(() => {
-    if (!isAuto || !isInView) return;
+    if (!isAuto || !isDemoVisible) return;
     let cancelled = false;
     const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
-    
+
     const run = async () => {
       if (cancelled) return;
       setFlowState("setup_1");
+      setActiveTab("overview");
+      setTypedUsername("");
+      setTypedPassword("");
       setMousePos({ x: 50, y: 55 });
       await wait(2000);
 
@@ -66,25 +89,25 @@ export function DashboardPreviewSection() {
       setFlowState("setup_2");
       setMousePos({ x: 50, y: 45 });
       await wait(800);
-      
+
       // Type Admin
       setTypedUsername("");
-      for (let char of "admin") { setTypedUsername(p => p + char); await wait(100); }
+      for (const char of "admin") { setTypedUsername(p => p + char); await wait(100); }
       setMousePos({ x: 50, y: 65 }); await wait(500);
       setTypedPassword("");
-      for (let char of "msqe2026") { setTypedPassword(p => p + "•"); await wait(80); }
-      
+      for (let i = 0; i < "msqe2026".length; i++) { setTypedPassword(p => p + "•"); await wait(80); }
+
       // Next Step
       setMousePos({ x: 65, y: 88 }); await wait(1000);
       setIsClicking(true); await wait(300); setIsClicking(false);
       setFlowState("setup_3");
       setMousePos({ x: 50, y: 50 }); await wait(1500);
-      
+
       // Next Step (Config)
       setMousePos({ x: 65, y: 88 }); await wait(800);
       setIsClicking(true); await wait(300); setIsClicking(false);
       setFlowState("setup_4");
-      
+
       // Initialize
       setMousePos({ x: 65, y: 88 }); await wait(1500);
       setIsClicking(true); await wait(300); setIsClicking(false);
@@ -95,32 +118,34 @@ export function DashboardPreviewSection() {
       await wait(1500);
       setIsClicking(true); await wait(300); setIsClicking(false);
       setFlowState("dashboard");
-      
+
       // Explore Tabs
-      const explore = ["topics", "dlq", "subscribers", "logs", "metrics", "console", "about"];
-      for (let tab of explore) {
+      const explore = ["topics", "dlq", "subscribers", "logs", "metrics", "console", "settings", "users", "roles", "about"];
+      for (const tab of explore) {
+        if (cancelled) return;
         await wait(2500);
         // Approximate sidebar positions for the "ghost cursor"
         setMousePos({ x: 15, y: 25 + explore.indexOf(tab) * 7 });
         await wait(600);
         setActiveTab(tab as TabId);
       }
+      setMousePos({ x: 9, y: 75 });
       await wait(5000);
-      if (!cancelled) run();
+      if (!cancelled) setAutoRunKey((key) => key + 1);
     };
 
     run();
     return () => { cancelled = true; };
-  }, [isAuto, isInView]);
+  }, [isAuto, isDemoVisible, autoRunKey]);
 
   if (!mounted) return null;
 
   const urlMap: Record<FlowState, string> = {
     setup_1: "localhost:3030/setup",
-    setup_2: "localhost:3030/setup/admin",
-    setup_3: "localhost:3030/setup/config",
-    setup_4: "localhost:3030/setup/review",
-    setup_5: "localhost:3030/setup/success",
+    setup_2: "localhost:3030/setup",
+    setup_3: "localhost:3030/setup",
+    setup_4: "localhost:3030/setup",
+    setup_5: "localhost:3030/setup",
     login: "localhost:3030/login",
     dashboard: `localhost:3030/${activeTab}`,
   };
@@ -129,43 +154,64 @@ export function DashboardPreviewSection() {
     <section id="demo" ref={sectionRef} className="py-16 sm:py-24 bg-dark-900 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <SectionHeader 
-            title="Built-in" 
-            highlight="Dashboard" 
-            subtitle="Full observability out of the box. No external dependencies required." 
-            className="mb-0 text-left" 
+          <SectionHeader
+            title="Built-in"
+            highlight="Dashboard"
+            subtitle="Full observability out of the box. No external dependencies required."
+            className="mb-0 text-left"
             centered={false}
           />
           <div className="flex items-center gap-2 bg-dark-800 p-1 rounded-2xl border border-white/5 self-start w-full sm:w-auto">
-            <button onClick={() => setIsAuto(true)} className={cn("flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all", isAuto ? "bg-neon-cyan text-dark-950 shadow-lg shadow-neon-cyan/20" : "text-slate-500 hover:text-white")}><Play className="w-3 h-3" /> Auto Play</button>
-            <button onClick={() => setIsAuto(false)} className={cn("flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold transition-all", !isAuto ? "bg-white/10 text-white" : "text-slate-500 hover:text-white")}>Manual</button>
+            <button
+              onClick={startAutoPlay}
+              className={cn(
+                "flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all",
+                isAuto
+                  ? "bg-neon-cyan text-dark-950 shadow-lg shadow-neon-cyan/20"
+                  : "text-slate-500 hover:text-white"
+              )}
+            >
+              <Play className="w-3 h-3" /> AI Driven
+            </button>
+
+            <button
+              onClick={() => setIsAuto(false)}
+              className={cn(
+                "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold transition-all",
+                !isAuto
+                  ? "bg-neon-cyan text-dark-950 shadow-lg shadow-neon-cyan/20"
+                  : "text-slate-500 hover:text-white"
+              )}
+            >
+              Hands On
+            </button>
           </div>
         </div>
 
         <div className="rounded-2xl sm:rounded-3xl border border-white/10 bg-dark-800 overflow-x-auto overflow-y-hidden shadow-2xl shadow-black/80 relative group/browser">
-          <div className="min-w-[900px]">
-          {/* Browser Bar */}
-          <div className="bg-[#1a1a1a] border-b border-white/5 flex items-center px-4 py-2.5 gap-4">
-            <div className="flex gap-1.5 shrink-0"><div className="w-3 h-3 rounded-full bg-[#ff5f57]" /><div className="w-3 h-3 rounded-full bg-[#febc2e]" /><div className="w-3 h-3 rounded-full bg-[#28c840]" /></div>
-            <div className="flex gap-3 text-white/20 shrink-0"><ChevronLeft className="w-4 h-4"/><ChevronRight className="w-4 h-4"/><RotateCw className="w-4 h-4"/></div>
-            <div className="flex-1 max-w-2xl mx-auto h-8 bg-black/40 rounded-lg border border-white/5 flex items-center px-3 gap-2">
-              <Lock className="w-3 h-3 text-green-400/50" /><span className="text-[11px] font-mono text-white/30 truncate tracking-tight">{urlMap[flowState]}</span>
+          <div className="min-w-[760px] lg:min-w-[900px]">
+            {/* Browser Bar */}
+            <div className="bg-[#1a1a1a] border-b border-white/5 flex items-center px-4 py-2.5 gap-4">
+              <div className="flex gap-1.5 shrink-0"><div className="w-3 h-3 rounded-full bg-[#ff5f57]" /><div className="w-3 h-3 rounded-full bg-[#febc2e]" /><div className="w-3 h-3 rounded-full bg-[#28c840]" /></div>
+              <div className="flex gap-3 text-white/20 shrink-0"><ChevronLeft className="w-4 h-4" /><ChevronRight className="w-4 h-4" /><RotateCw className="w-4 h-4" /></div>
+              <div className="flex-1 max-w-2xl mx-auto h-8 bg-black/40 rounded-lg border border-white/5 flex items-center px-3 gap-2">
+                <Lock className="w-3 h-3 text-green-400/50" /><span className="text-[11px] font-mono text-white/30 truncate tracking-tight">{urlMap[flowState]}</span>
+              </div>
             </div>
-          </div>
 
-          <div className="h-[640px] lg:h-[720px] relative bg-[#0a0a0a] overflow-hidden">
-            <AnimatePresence mode="wait">
-              {flowState.startsWith("setup") && <SetupSimulator key="setup" step={flowState} setFlowState={setFlowState} username={typedUsername} password={typedPassword} isAuto={isAuto} />}
-              {flowState === "login" && <LoginSimulator key="login" username={typedUsername} password={typedPassword} onLogin={() => setFlowState("dashboard")} />}
-              {flowState === "dashboard" && <DashboardSimulator key="dash" activeTab={activeTab} setActiveTab={setActiveTab} isAuto={isAuto} setIsAuto={setIsAuto} setFlowState={setFlowState} />}
-            </AnimatePresence>
+            <div className="h-[620px] lg:h-[720px] relative bg-[#0a0a0a] overflow-hidden">
+              <AnimatePresence mode="wait">
+                {flowState.startsWith("setup") && <SetupSimulator key="setup" step={flowState} setFlowState={setFlowState} username={typedUsername} password={typedPassword} isAuto={isAuto} />}
+                {flowState === "login" && <LoginSimulator key="login" username={typedUsername} password={typedPassword} onLogin={() => setFlowState("dashboard")} />}
+                {flowState === "dashboard" && <DashboardSimulator key="dash" activeTab={activeTab} setActiveTab={setActiveTab} isAuto={isAuto} setIsAuto={setIsAuto} setFlowState={setFlowState} />}
+              </AnimatePresence>
 
-            {isAuto && (
-              <motion.div className="absolute pointer-events-none z-[100]" animate={{ left: `${mousePos.x}%`, top: `${mousePos.y}%`, scale: isClicking ? 0.8 : 1 }} transition={{ duration: 0.8, ease: "easeInOut" }}>
-                <MousePointer2 className="w-6 h-6 text-white drop-shadow-xl fill-black" />
-              </motion.div>
-            )}
-          </div>
+              {isAuto && (
+                <motion.div className="absolute pointer-events-none z-[100]" animate={{ left: `${mousePos.x}%`, top: `${mousePos.y}%`, scale: isClicking ? 0.8 : 1 }} transition={{ duration: 0.8, ease: "easeInOut" }}>
+                  <MousePointer2 className="w-6 h-6 text-white drop-shadow-xl fill-black" />
+                </motion.div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -194,14 +240,14 @@ function SetupSimulator({ step, setFlowState, username, password, isAuto }: any)
     const prevStep = `setup_${currentStep - 1}` as FlowState;
     setFlowState(prevStep);
   };
-  
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex flex-col items-center justify-center p-6 sm:p-8 bg-[#050505] relative overflow-hidden">
       <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#333 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
       <div className="z-10 w-full max-w-lg">
         <div className="text-center mb-10 space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-neon-cyan/10 border border-neon-cyan/20 rounded-full text-[10px] font-bold text-neon-cyan uppercase">MSQE v3.0.0</div>
-          <h1 className="text-4xl font-bold tracking-tighter">MS<span className="text-neon-cyan">QE</span></h1>
+          <h1 className="text-4xl font-bold tracking-tighter">MS<span className="text-neon-cyan">QE</span></h1> <p className="text-slate-500 text-sm">Lightweight Message Queue Engine</p>
         </div>
 
         {currentStep < 5 && (
@@ -213,13 +259,13 @@ function SetupSimulator({ step, setFlowState, username, password, isAuto }: any)
         <div className="glass rounded-3xl border border-white/10 p-6 sm:p-10 relative overflow-hidden bg-white/[0.02]">
           {currentStep === 1 && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-              <div className="text-center space-y-2"><h2 className="text-2xl font-bold">Welcome to MSQE</h2><p className="text-slate-500 text-sm">High-performance messaging with zero infrastructure.</p></div>
+              <div className="text-center space-y-2"><h2 className="text-2xl font-bold">Welcome to MSQE</h2><p className="text-slate-500 text-sm">High-performance message brokering with zero infrastructure required.</p></div>
               <div className="grid grid-cols-2 gap-4">
-                {[ { l: "Ingress", v: "9091", i: Zap, c: "text-amber-400" }, { l: "Admin", v: "8081", i: Cpu, c: "text-blue-400" }, { l: "Console", v: "3030", i: Terminal, c: "text-neon-cyan" }, { l: "Auth", v: "RBAC", i: ShieldCheck, c: "text-green-400" } ].map(item => (
+                {[{ l: "Ingress Stream", v: "9091", i: Zap, c: "text-amber-400" }, { l: "Core Engine", v: "8081", i: Cpu, c: "text-blue-400" }, { l: "Cluster Console", v: "3030", i: Terminal, c: "text-neon-cyan" }, { l: "Identity Mesh", v: "RBAC", i: ShieldCheck, c: "text-green-400" }].map(item => (
                   <div key={item.l} className="p-4 bg-white/5 border border-white/5 rounded-2xl"><item.i className={cn("w-4 h-4 mb-2", item.c)} /><p className="text-[9px] text-white/30 uppercase tracking-widest font-bold">{item.l}</p><p className="text-lg font-mono font-bold">{item.v}</p></div>
                 ))}
               </div>
-              <button onClick={handleNext} className="w-full py-4 bg-neon-cyan text-dark-950 font-bold rounded-2xl flex items-center justify-center gap-2 hover:brightness-110 transition-all">Get Started <ChevronRight className="w-5 h-5"/></button>
+              <button onClick={handleNext} className="w-full py-4 bg-neon-cyan text-dark-950 font-bold rounded-2xl flex items-center justify-center gap-2 hover:brightness-110 transition-all">Get Started <ChevronRight className="w-5 h-5" /></button>
             </motion.div>
           )}
 
@@ -227,8 +273,8 @@ function SetupSimulator({ step, setFlowState, username, password, isAuto }: any)
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
               <div className="text-center space-y-2"><h2 className="text-2xl font-bold text-neon-cyan">Admin Account</h2><p className="text-slate-500 text-sm">Create the superuser account.</p></div>
               <div className="space-y-4">
-                <div className="space-y-2"><label className="text-[9px] font-bold text-white/30 uppercase tracking-widest ml-1">Username</label><div className="relative"><User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20"/><input readOnly value={username} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm font-mono text-white" placeholder="admin"/></div></div>
-                <div className="space-y-2"><label className="text-[9px] font-bold text-white/30 uppercase tracking-widest ml-1">Password</label><input readOnly value={password} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm font-mono text-white" placeholder="••••••••"/></div>
+                <div className="space-y-2"><label className="text-[9px] font-bold text-white/30 uppercase tracking-widest ml-1">Username</label><div className="relative"><User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" /><input readOnly value={username} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm font-mono text-white" placeholder="admin" /></div></div>
+                <div className="space-y-2"><label className="text-[9px] font-bold text-white/30 uppercase tracking-widest ml-1">Password</label><input readOnly value={password} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm font-mono text-white" placeholder="••••••••" /></div>
               </div>
               <div className="flex gap-4 pt-4">
                 <button onClick={handleBack} className="flex-1 py-4 bg-white/5 rounded-2xl text-center text-xs font-bold text-white/40 hover:bg-white/10 transition-all">Back</button>
@@ -262,7 +308,7 @@ function SetupSimulator({ step, setFlowState, username, password, isAuto }: any)
               </div>
               <div className="flex gap-4 pt-4">
                 <button onClick={handleBack} className="flex-1 py-4 bg-white/5 rounded-2xl text-center text-xs font-bold text-white/40 hover:bg-white/10 transition-all">Back</button>
-                <button onClick={handleNext} className="flex-[2] py-4 bg-green-500 text-dark-950 rounded-2xl text-center font-bold flex items-center justify-center gap-2 hover:brightness-110 transition-all">Initialize Engine <CheckCircle className="w-4 h-4"/></button>
+                <button onClick={handleNext} className="flex-[2] py-4 bg-green-500 text-dark-950 rounded-2xl text-center font-bold flex items-center justify-center gap-2 hover:brightness-110 transition-all">Initialize Engine <CheckCircle className="w-4 h-4" /></button>
               </div>
             </motion.div>
           )}
@@ -293,8 +339,8 @@ function LoginSimulator({ username, password, onLogin }: any) {
           <div><h1 className="text-2xl font-bold text-white tracking-tight">MS<span className="text-neon-cyan">QE</span></h1><p className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-black">Enterprise Queue System</p></div>
         </div>
         <div className="space-y-6">
-          <div className="space-y-2"><label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Username</label><div className="relative"><User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20"/><input readOnly value={username} className="w-full bg-white/[0.05] border border-white/[0.1] rounded-2xl py-4 pl-12 pr-4 text-sm text-white" placeholder="admin"/></div></div>
-          <div className="space-y-2"><label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Password</label><div className="relative"><Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20"/><input readOnly value={password} className="w-full bg-white/[0.05] border border-white/[0.1] rounded-2xl py-4 pl-12 pr-4 text-sm text-white" placeholder="••••••••"/></div></div>
+          <div className="space-y-2"><label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Username</label><div className="relative"><User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" /><input readOnly value={username} className="w-full bg-white/[0.05] border border-white/[0.1] rounded-2xl py-4 pl-12 pr-4 text-sm text-white" placeholder="admin" /></div></div>
+          <div className="space-y-2"><label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Password</label><div className="relative"><Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" /><input readOnly value={password} className="w-full bg-white/[0.05] border border-white/[0.1] rounded-2xl py-4 pl-12 pr-4 text-sm text-white" placeholder="••••••••" /></div></div>
           <button onClick={onLogin} className="w-full bg-white text-black font-bold py-4 rounded-2xl shadow-xl">Sign In</button>
         </div>
       </div>
@@ -305,7 +351,9 @@ function LoginSimulator({ username, password, onLogin }: any) {
 // --- Dashboard Simulator ---
 function DashboardSimulator({ activeTab, setActiveTab, isAuto, setIsAuto, setFlowState }: any) {
   const [showNotifications, setShowNotifications] = useState(false);
-  
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
   const menuItems = [
     { id: "overview", label: "Dashboard", icon: LayoutDashboard },
     { id: "topics", label: "Topics", icon: Database },
@@ -333,154 +381,175 @@ function DashboardSimulator({ activeTab, setActiveTab, isAuto, setIsAuto, setFlo
     setFlowState("login");
   };
 
+  useEffect(() => {
+    const activeButton = sidebarRef.current?.querySelector(`[data-tab="${activeTab}"]`);
+    activeButton?.scrollIntoView({ block: "nearest", behavior: isAuto ? "smooth" : "auto" });
+  }, [activeTab, isAuto]);
+
+  useEffect(() => {
+    const content = contentRef.current;
+    if (!content) return;
+
+    content.scrollTo({ top: 0, behavior: "auto" });
+    if (!isAuto) return;
+
+    const scrollTimer = window.setTimeout(() => {
+      if (content.scrollHeight > content.clientHeight + 16) {
+        content.scrollTo({ top: content.scrollHeight, behavior: "smooth" });
+      }
+    }, 700);
+
+    return () => window.clearTimeout(scrollTimer);
+  }, [activeTab, isAuto]);
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full flex bg-[#0a0a0a]">
       {/* Sidebar */}
-      <div className="w-64 border-r border-white/5 bg-[#070707] flex flex-col p-4 shrink-0">
-        <div className="flex items-center gap-3 px-4 py-5 mb-6 border-b border-white/5">
+      <div className="w-20 lg:w-64 border-r border-white/5 bg-[#070707] flex flex-col p-3 lg:p-4 shrink-0">
+        <div className="flex items-center justify-center lg:justify-start gap-3 px-2 lg:px-4 py-4 lg:py-5 mb-4 lg:mb-6 border-b border-white/5">
           <div className="flex-shrink-0 w-8 h-8">
             <img src="/logo.svg" alt="MSQE Logo" className="object-contain w-full h-full" />
           </div>
-          <div className="overflow-hidden whitespace-nowrap">
+          <div className="hidden lg:block overflow-hidden whitespace-nowrap">
             <span className="font-bold text-white text-xl tracking-tighter uppercase leading-none">MS<span className="text-neon-cyan">QE</span></span>
             <p className="text-[10px] text-white/25 uppercase tracking-[0.15em] font-medium mt-0.5">
               Message Queue Events
             </p>
           </div>
         </div>
-        <nav className="flex-1 space-y-1 overflow-y-auto pr-2 scrollbar-hide">
+        <nav ref={sidebarRef} className="flex-1 space-y-1 overflow-y-auto lg:pr-2 scrollbar-hide">
           {menuItems.map(item => (
-            <button key={item.id} onClick={() => handleTabClick(item.id as TabId)} className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all group relative", activeTab === item.id ? "bg-white/10 text-white" : "text-white/30 hover:text-white/60 hover:bg-white/5")}>
+            <button key={item.id} data-tab={item.id} onClick={() => handleTabClick(item.id as TabId)} className={cn("w-full flex items-center justify-center lg:justify-start gap-3 px-3 lg:px-4 py-3 rounded-2xl text-sm font-medium transition-all group relative", activeTab === item.id ? "bg-white/10 text-white" : "text-white/30 hover:text-white/60 hover:bg-white/5")} title={item.label}>
               {activeTab === item.id && <motion.div layoutId="activeTab" className="absolute left-0 w-1 h-5 bg-neon-cyan rounded-r-full" />}
               <item.icon className={cn("w-5 h-5", activeTab === item.id ? "text-neon-cyan" : "text-white/20 group-hover:text-white")} />
-              {item.label}
+              <span className="hidden lg:inline">{item.label}</span>
             </button>
           ))}
         </nav>
         <div className="mt-4 pt-4 border-t border-white/5 space-y-1">
           {bottomItems.map(item => (
-            <button key={item.id} onClick={() => handleTabClick(item.id as TabId)} className={cn("w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all group", activeTab === item.id ? "bg-white/10 text-white" : "text-white/30 hover:text-white/60 hover:bg-white/5")}>
+            <button key={item.id} data-tab={item.id} onClick={() => handleTabClick(item.id as TabId)} className={cn("w-full flex items-center justify-center lg:justify-start gap-3 px-3 lg:px-4 py-3 rounded-2xl text-sm font-medium transition-all group", activeTab === item.id ? "bg-white/10 text-white" : "text-white/30 hover:text-white/60 hover:bg-white/5")} title={item.label}>
               <item.icon className={cn("w-5 h-5", activeTab === item.id ? "text-neon-cyan" : "text-white/20 group-hover:text-white")} />
-              {item.label}
+              <span className="hidden lg:inline">{item.label}</span>
             </button>
           ))}
-          <div className="flex items-center gap-1 px-1 py-1 mt-4 hover:bg-white/5 hover:rounded-2xl hover:border hover:border-white/5">
+          <div className="flex items-center justify-center lg:justify-start gap-1 px-1 py-1 mt-4 hover:bg-white/5 hover:rounded-2xl hover:border hover:border-white/5">
             <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs font-bold text-neon-cyan">A</div>
-            <div className="flex-1 overflow-hidden text-left">
+            <div className="hidden lg:block flex-1 overflow-hidden text-left">
               <p className="text-xs font-bold text-white truncate">Admin</p>
               <p className="text-[5px] text-white/30 uppercase tracking-tighter font-black">Admin</p>
             </div>
           </div>
-          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-red-500 hover:bg-red-500/10 transition-all group mt-2">
+          <button onClick={handleLogout} className="w-full flex items-center justify-center lg:justify-start gap-3 px-3 lg:px-4 py-3 rounded-2xl text-sm font-medium text-red-500 hover:bg-red-500/10 transition-all group mt-2" title="Logout">
             <LogOut className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            <span>Logout</span>
+            <span className="hidden lg:inline">Logout</span>
           </button>
         </div>
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden relative">
-        <header className="h-16 border-b border-white/5 bg-[#0a0a0a]/50 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-8">
+        <header className="h-16 border-b border-white/5 bg-[#0a0a0a]/50 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-4 lg:px-8">
           <div className="flex items-center gap-4 flex-1 max-w-xl">
             <div className="relative w-full group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-white/60 transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Search topics, messages, or subscribers..." 
+              <input
+                type="text"
+                placeholder="Search topics, messages, or subscribers..."
                 className="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-10 pr-10 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/20 transition-all"
               />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-[10px] text-white/30">
-                    <Command className="w-2.5 h-2.5" />
-                    <span>K</span>
-                  </div>
-                </div>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-[10px] text-white/30">
+                <Command className="w-2.5 h-2.5" />
+                <span>K</span>
               </div>
+            </div>
+          </div>
 
-              <div className="flex items-center gap-6">
-                <div className="relative">
-                  <button 
-                    onClick={() => setShowNotifications(!showNotifications)}
-                    className="relative p-2 text-white/40 hover:text-white transition-colors"
+          <div className="flex items-center gap-4 lg:gap-6">
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2 text-white/40 hover:text-white transition-colors"
+              >
+                <Bell className="w-5 h-5" />
+                <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 bg-red-500 rounded-full text-[9px] font-bold text-white flex items-center justify-center border-2 border-[#0a0a0a] animate-pulse">
+                  1
+                </span>
+              </button>
+
+              <AnimatePresence>
+                {showNotifications && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute right-0 top-full mt-2 w-96 bg-[#0c0c0c] border border-white/10 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden z-50"
                   >
-                    <Bell className="w-5 h-5" />
-                    <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 bg-red-500 rounded-full text-[9px] font-bold text-white flex items-center justify-center border-2 border-[#0a0a0a] animate-pulse">
-                      1
-                    </span>
-                  </button>
-
-                  <AnimatePresence>
-                    {showNotifications && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute right-0 top-full mt-2 w-96 bg-[#0c0c0c] border border-white/10 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden z-50"
-                      >
-                        <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
-                          <h3 className="text-sm font-bold text-white">Notifications</h3>
-                          <div className="flex items-center gap-2">
-                            <button className="text-[10px] text-neon-cyan hover:text-neon-cyan font-bold uppercase tracking-wider transition-colors">Mark all read</button>
-                            <X className="w-3.5 h-3.5 text-white/20 cursor-pointer" onClick={() => setShowNotifications(false)} />
+                    <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
+                      <h3 className="text-sm font-bold text-white">Notifications</h3>
+                      <div className="flex items-center gap-2">
+                        <button className="text-[10px] text-neon-cyan hover:text-neon-cyan font-bold uppercase tracking-wider transition-colors">Mark all read</button>
+                        <X className="w-3.5 h-3.5 text-white/20 cursor-pointer" onClick={() => setShowNotifications(false)} />
+                      </div>
+                    </div>
+                    <div className="max-h-80 overflow-y-auto">
+                      {[
+                        { id: "1", type: "dlq", title: "Message moved to DLQ", message: "Topic: payment-processing • ERR_TIMEOUT", timestamp: Date.now() - 1000 * 60 * 5, read: false },
+                        { id: "2", type: "system", title: "System Healthy", message: "12 topics • 45 subscribers online", timestamp: Date.now() - 1000 * 60 * 15, read: true },
+                        { id: "3", type: "ack", title: "Cluster Synced", message: "Nodes 1-3 synchronized successfully", timestamp: Date.now() - 1000 * 60 * 45, read: true },
+                      ].map((n, idx) => (
+                        <div key={idx} className={cn("px-5 py-3 border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors cursor-pointer flex items-start gap-3", !n.read && "bg-neon-cyan/[0.03]")}>
+                          <div className="mt-0.5 p-1.5 rounded-lg bg-white/5">
+                            {n.type === "dlq" ? <AlertTriangle className="w-4 h-4 text-red-400" /> : n.type === "ack" ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <Bell className="w-4 h-4 text-neon-cyan" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-xs font-bold text-white truncate">{n.title}</p>
+                              {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan flex-shrink-0" />}
+                            </div>
+                            <p className="text-[11px] text-white/40 truncate mt-0.5">{n.message}</p>
+                            <p className="text-[10px] text-white/20 mt-1">just now</p>
                           </div>
                         </div>
-                        <div className="max-h-80 overflow-y-auto">
-                          {[
-                            { id: "1", type: "dlq", title: "Message moved to DLQ", message: "Topic: payment-processing • ERR_TIMEOUT", timestamp: Date.now() - 1000 * 60 * 5, read: false },
-                            { id: "2", type: "system", title: "System Healthy", message: "12 topics • 45 subscribers online", timestamp: Date.now() - 1000 * 60 * 15, read: true },
-                            { id: "3", type: "ack", title: "Cluster Synced", message: "Nodes 1-3 synchronized successfully", timestamp: Date.now() - 1000 * 60 * 45, read: true },
-                          ].map((n, idx) => (
-                            <div key={idx} className={cn("px-5 py-3 border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors cursor-pointer flex items-start gap-3", !n.read && "bg-neon-cyan/[0.03]")}>
-                              <div className="mt-0.5 p-1.5 rounded-lg bg-white/5">
-                                {n.type === "dlq" ? <AlertTriangle className="w-4 h-4 text-red-400" /> : n.type === "ack" ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <Bell className="w-4 h-4 text-neon-cyan" />}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <p className="text-xs font-bold text-white truncate">{n.title}</p>
-                                  {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan flex-shrink-0" />}
-                                </div>
-                                <p className="text-[11px] text-white/40 truncate mt-0.5">{n.message}</p>
-                                <p className="text-[10px] text-white/20 mt-1">just now</p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="px-5 py-3 border-t border-white/5 text-center">
-                          <button className="text-[10px] text-neon-cyan hover:text-neon-cyan font-bold uppercase tracking-wider transition-colors">View all activity →</button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                      ))}
+                    </div>
+                    <div className="px-5 py-3 border-t border-white/5 text-center">
+                      <button className="text-[10px] text-neon-cyan hover:text-neon-cyan font-bold uppercase tracking-wider transition-colors">View all activity →</button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
-                <div className="h-8 w-[1px] bg-white/10" />
+            <div className="hidden lg:block h-8 w-[1px] bg-white/10" />
 
-                <div className="flex items-center gap-4">
-                  <div className="flex flex-col items-end">
-                    <span className="text-xs font-bold text-white">Admin</span>
-                    <span className="text-[9px] text-white/40 uppercase tracking-widest font-black">Principal Architect</span>
-                  </div>
-                  <button 
-                    onClick={handleLogout}
-                    className="p-2 bg-white/5 border border-white/10 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-400/10 hover:border-red-400/20 transition-all"
-                  >
-                    <LogOut className="w-5 h-5" />
-                  </button>
-                </div>
+            <div className="flex items-center gap-3 lg:gap-4">
+              <div className="hidden lg:flex flex-col items-end">
+                <span className="text-xs font-bold text-white">Admin</span>
+                <span className="text-[9px] text-white/40 uppercase tracking-widest font-black">Principal Architect</span>
               </div>
-            </header>
+              <button
+                onClick={handleLogout}
+                className="p-2 bg-white/5 border border-white/10 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-400/10 hover:border-red-400/20 transition-all"
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </header>
 
-        <div className="flex-1 p-8 overflow-y-auto scrollbar-hide">
+        <div ref={contentRef} className="flex-1 p-4 lg:p-8 overflow-y-auto scrollbar-hide">
           <AnimatePresence mode="wait">
-            {activeTab === "overview" && <ViewOverview key="o"/>}
-            {activeTab === "topics" && <ViewTopics key="t"/>}
-            {activeTab === "dlq" && <ViewDlq key="d"/>}
-            {activeTab === "subscribers" && <ViewSubscribers key="s"/>}
-            {activeTab === "logs" && <ViewLogs key="l"/>}
-            {activeTab === "metrics" && <ViewMetrics key="m"/>}
-            {activeTab === "console" && <ViewConsole key="c"/>}
-            {activeTab === "settings" && <ViewSettings key="st"/>}
-            {activeTab === "users" && <ViewUsers key="u"/>}
-            {activeTab === "roles" && <ViewRoles key="r"/>}
-            {activeTab === "about" && <ViewAbout key="a"/>}
+            {activeTab === "overview" && <ViewOverview key="o" />}
+            {activeTab === "topics" && <ViewTopics key="t" />}
+            {activeTab === "dlq" && <ViewDlq key="d" />}
+            {activeTab === "subscribers" && <ViewSubscribers key="s" />}
+            {activeTab === "logs" && <ViewLogs key="l" />}
+            {activeTab === "metrics" && <ViewMetrics key="m" />}
+            {activeTab === "console" && <ViewConsole key="c" />}
+            {activeTab === "settings" && <ViewSettings key="st" />}
+            {activeTab === "users" && <ViewUsers key="u" />}
+            {activeTab === "roles" && <ViewRoles key="r" />}
+            {activeTab === "about" && <ViewAbout key="a" />}
           </AnimatePresence>
         </div>
       </div>
@@ -533,7 +602,7 @@ function ViewOverview() {
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={areaData}>
-                <defs><linearGradient id="gradCyan" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#22d3ee" stopOpacity={0.3} /><stop offset="95%" stopColor="#22d3ee" stopOpacity={0}/></linearGradient></defs>
+                <defs><linearGradient id="gradCyan" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#22d3ee" stopOpacity={0.3} /><stop offset="95%" stopColor="#22d3ee" stopOpacity={0} /></linearGradient></defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
                 <XAxis hide dataKey="t" /><YAxis hide />
                 <Area type="monotone" dataKey="v" stroke="#22d3ee" strokeWidth={2} fill="url(#gradCyan)" dot={false} />
@@ -546,7 +615,7 @@ function ViewOverview() {
           <div className="flex items-center gap-2"><BarChart3 className="w-5 h-5 text-green-400" /><h3 className="font-bold text-white">Ack Rate per Topic</h3></div>
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={[{n: "orders", A: 1200, U: 45}, {n: "payments", A: 800, U: 0}, {n: "logs", A: 4500, U: 200}]}>
+              <BarChart data={[{ n: "orders", A: 1200, U: 45 }, { n: "payments", A: 800, U: 0 }, { n: "logs", A: 4500, U: 200 }]}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
                 <XAxis dataKey="n" axisLine={false} tickLine={false} tick={{ fill: "#ffffff35", fontSize: 10 }} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: "#ffffff35", fontSize: 10 }} />
@@ -570,7 +639,7 @@ function ViewOverview() {
                 <div className={cn("absolute top-0 right-0 px-3 py-1 text-[8px] font-black uppercase tracking-tighter rounded-bl-lg", i === 0 ? "bg-amber-500 text-black" : "bg-blue-500 text-white")}>{i === 0 ? "Leader" : "Follower"}</div>
                 <div className="flex items-center gap-3 mb-4">
                   <div className={cn("p-2 rounded-lg", i === 0 ? "bg-amber-500/20 text-amber-500" : "bg-blue-500/20 text-blue-500")}><Server className="w-4 h-4" /></div>
-                  <div><h4 className="text-sm font-bold text-white">{node}</h4><p className="text-[10px] text-white/30 uppercase font-bold tracking-widest">msqe-cluster-0{i+1}</p></div>
+                  <div><h4 className="text-sm font-bold text-white">{node}</h4><p className="text-[10px] text-white/30 uppercase font-bold tracking-widest">msqe-cluster-0{i + 1}</p></div>
                 </div>
                 <div className="flex justify-between items-center text-[10px]"><span className="text-white/40">Sync State</span><span className="text-green-400 font-bold">ONLINE</span></div>
               </div>
@@ -700,7 +769,7 @@ function ViewSubscribers() {
                 <div key={i} className="p-6 hover:bg-white/[0.02] transition-all flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="relative w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-                      <div className="w-6 h-6 bg-neon-cyan/20 rounded-md flex items-center justify-center font-bold text-neon-cyan text-[10px]">SDK</div>
+                      <Code2 className="w-5 h-5 text-neon-cyan" />
                       <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-[#0a0a0a]" />
                     </div>
                     <div className="space-y-1">
@@ -798,7 +867,7 @@ function ViewDlq() {
         </div>
 
         <div className="divide-y divide-white/[0.04]">
-          {[1,2,3].map((i) => (
+          {[1, 2, 3].map((i) => (
             <div key={i} className="p-6 hover:bg-red-400/[0.01] transition-all group cursor-pointer">
               <div className="flex items-start justify-between mb-4">
                 <div className="space-y-1.5">
@@ -924,7 +993,7 @@ function ViewMetrics() {
     { topic: "payment", count: 8920 },
     { topic: "metrics", count: 45200 },
     { topic: "notif", count: 3200 }
-  ].sort((a,b) => b.count - a.count);
+  ].sort((a, b) => b.count - a.count);
   const pieData = [
     { name: "Node-A", value: 45 },
     { name: "Node-B", value: 32 },
@@ -971,14 +1040,14 @@ function ViewMetrics() {
         </div>
         <div className="glass rounded-2xl border border-white/5 p-6 space-y-6">
           <div className="flex items-center gap-2"><Layers className="w-5 h-5 text-green-400" /><h3 className="font-bold text-white">Queue Depth Distribution</h3></div>
-          <div className="h-[260px]"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={pieData} innerRadius={65} outerRadius={100} paddingAngle={3} dataKey="value" nameKey="name">{pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Legend formatter={(v) => <span className="text-[10px] text-white/40">{v}</span>}/></PieChart></ResponsiveContainer></div>
+          <div className="h-[260px]"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={pieData} innerRadius={65} outerRadius={100} paddingAngle={3} dataKey="value" nameKey="name">{pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Legend formatter={(v) => <span className="text-[10px] text-white/40">{v}</span>} /></PieChart></ResponsiveContainer></div>
         </div>
       </div>
       <div className="glass rounded-2xl border border-white/5 overflow-hidden">
         <div className="p-6 border-b border-white/5"><h3 className="font-bold text-white">Partition Offset Snapshot</h3></div>
         <table className="w-full text-left">
           <thead><tr className="border-b border-white/5 bg-white/[0.02]"><th className="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-white/40">Queue Key</th><th className="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-white/40 text-right">Latest Offset</th></tr></thead>
-          <tbody className="divide-y divide-white/5">{[ ["orderCreated:P0", 12051], ["payment:P1", 452], ["metrics:P2", 89201] ].map(([k, o]) => (
+          <tbody className="divide-y divide-white/5">{[["orderCreated:P0", 12051], ["payment:P1", 452], ["metrics:P2", 89201]].map(([k, o]) => (
             <tr key={k as string} className="hover:bg-white/[0.02] transition-colors"><td className="px-6 py-4"><code className="text-sm font-mono text-white/60">{k}</code></td><td className="px-6 py-4 text-right"><span className="text-sm font-mono font-bold text-blue-400">{o}</span></td></tr>
           ))}</tbody>
         </table>
@@ -1027,7 +1096,7 @@ function ViewConsole() {
         <div className="flex-1 p-6 overflow-y-auto font-mono text-sm space-y-2">
           {logs.map((log, i) => (
             <div key={i} className="flex items-start gap-4 py-1 border-l-2 border-white/5 pl-4 hover:bg-white/[0.02] transition-colors">
-              <span className="text-white/20 shrink-0">12:45:{10+i}</span>
+              <span className="text-white/20 shrink-0">12:45:{10 + i}</span>
               <span className="shrink-0 font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wider bg-blue-500/10 text-blue-400">{log.topic}</span>
               <div className="flex-1 break-all text-white/70">{JSON.stringify(log.payload)}</div>
             </div>
@@ -1156,9 +1225,9 @@ function ViewUsers() {
                 <td className="px-6 py-5">
                   <span className={cn(
                     "px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border",
-                    u.r === "Super Admin" ? "text-red-400 bg-red-400/10 border-red-400/20" : 
-                    u.r === "Operator" ? "text-amber-400 bg-amber-400/10 border-amber-400/20" : 
-                    "text-neon-cyan bg-neon-cyan/10 border-neon-cyan/20"
+                    u.r === "Super Admin" ? "text-red-400 bg-red-400/10 border-red-400/20" :
+                      u.r === "Operator" ? "text-amber-400 bg-amber-400/10 border-amber-400/20" :
+                        "text-neon-cyan bg-neon-cyan/10 border-neon-cyan/20"
                   )}>
                     {u.r}
                   </span>
@@ -1259,19 +1328,20 @@ function ViewRoles() {
 
 function ViewAbout() {
   const techStack = [
-    { name: "Next.js 15", icon: Globe, color: "text-white" },
+    { name: "Next.js 16", icon: Globe, color: "text-white" },
+    { name: "React 19", icon: Code, color: "text-sky-400" },
     { name: "TypeScript", icon: Code2, color: "text-blue-400" },
     { name: "Node.js", icon: Server, color: "text-green-500" },
     { name: "Tailwind CSS", icon: Layers, color: "text-neon-cyan" },
     { name: "Framer Motion", icon: Zap, color: "text-purple-400" },
-    { name: "Lucide Icons", icon: Rocket, color: "text-orange-400" },
+    { name: "Docker Ready", icon: Rocket, color: "text-orange-400" },
   ];
 
   const features = [
-    { icon: Zap, title: "Ultra-Fast Brokering", description: "Low-latency message delivery using a high-performance in-memory engine." },
-    { icon: Layers, title: "Partitioned Architecture", description: "Support for multi-partitioned topics ensuring high throughput." },
-    { icon: Shield, title: "Dead Letter Queues", description: "Automatic isolation of failed messages for manual review." },
-    { icon: Radio, title: "WebSocket Native", description: "Real-time communication via WebSockets for both pub/sub." }
+    { icon: Zap, title: "Fast Broker Core", description: "Low-latency message delivery with durable queue state and quick startup." },
+    { icon: Layers, title: "Partitioned Topics", description: "Multi-partition topic routing for higher throughput and parallel consumers." },
+    { icon: Shield, title: "Dead Letter Queues", description: "Failed messages are isolated for inspection, replay, and safer recovery." },
+    { icon: Radio, title: "WebSocket Publisher", description: "Publishers connect over WebSocket while operators use the HTTP Admin API." }
   ];
 
   return (
@@ -1289,7 +1359,7 @@ function ViewAbout() {
         {[
           { label: "Architecture", value: "Distributed", detail: "Multi-Partitioned" },
           { label: "Performance", value: "< 2ms", detail: "Internal Latency" },
-          { label: "Protocols", value: "WebSocket / HTTP", detail: "Full Support" },
+          { label: "Protocols", value: "Broker / HTTP", detail: "Full Support" },
         ].map((stat) => (
           <div key={stat.label} className="glass p-8 rounded-3xl border border-white/5 text-center group hover:border-white/10 transition-all">
             <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] mb-2">{stat.label}</p>
@@ -1304,15 +1374,15 @@ function ViewAbout() {
           <div className="space-y-4">
             <h2 className="text-3xl font-bold text-white">Our Mission</h2>
             <p className="text-white/40 leading-relaxed">
-              MSQE was born from the need for a message broker that is both simple to deploy and powerful enough to handle enterprise-grade traffic. We've focused on eliminating the complex configuration of traditional brokers while maintaining strict delivery guarantees and real-time visibility.
+              MSQE is built for teams that need a message broker that is simple to deploy, observable from day one, and ready for clustered production traffic. It keeps setup light while providing durable queues, leader/follower replication, quorum awareness, and real-time operational visibility.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {features.map((feature, i) => (
+            {features.map((feature) => (
               <div key={feature.title} className="space-y-3">
                 <div className="relative w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-                  <div className="w-6 h-6 bg-neon-cyan/20 rounded-md flex items-center justify-center font-bold text-neon-cyan text-[10px]">SDK</div>
+                  <feature.icon className="w-5 h-5 text-neon-cyan" />
                 </div>
                 <h4 className="font-bold text-white text-sm">{feature.title}</h4>
                 <p className="text-xs text-white/30 leading-relaxed">{feature.description}</p>
@@ -1322,13 +1392,32 @@ function ViewAbout() {
         </div>
 
         <div className="relative">
-          <div className="glass rounded-3xl border border-white/10 p-2 overflow-hidden aspect-square flex items-center justify-center bg-gradient-to-br from-neon-cyan/10 to-blue-500/10">
+          <div className="glass rounded-3xl border border-white/10 p-6 overflow-hidden aspect-square flex items-center justify-center bg-[#08090d]">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,245,196,0.12),transparent_58%)]" />
             <div className="relative w-full h-full flex items-center justify-center">
-              <div className="absolute w-[80%] h-[80%] border border-white/5 rounded-full animate-[spin_10s_linear_infinite]" />
-              <div className="absolute w-[60%] h-[60%] border border-white/10 rounded-full animate-[spin_15s_linear_infinite_reverse]" />
-              <div className="absolute w-[40%] h-[40%] border border-white/20 rounded-full animate-[spin_20s_linear_infinite]" />
-              <div className="z-10 p-10 bg-[#070707] border border-white/10 rounded-3xl shadow-2xl">
-                <img src="/logo.svg" alt="MSQE Logo" className="w-16 h-16 object-contain animate-pulse" />
+              <div className="absolute w-[82%] h-[82%] border border-neon-cyan/10 rounded-full" />
+              <div className="absolute w-[58%] h-[58%] border border-blue-400/15 rounded-full" />
+              <div className="absolute w-[34%] h-[34%] border border-white/15 rounded-full" />
+
+              {[
+                { label: "node-1", role: "Follower", className: "top-6 left-1/2 -translate-x-1/2" },
+                { label: "node-2", role: "Leader", className: "left-6 top-1/2 -translate-y-1/2" },
+                { label: "node-3", role: "Follower", className: "right-6 top-1/2 -translate-y-1/2" },
+                { label: "UI", role: ":3030", className: "bottom-6 left-1/2 -translate-x-1/2" },
+              ].map((node) => (
+                <div key={node.label} className={cn("absolute flex flex-col items-center gap-1", node.className)}>
+                  <div className={cn(
+                    "w-11 h-11 rounded-2xl border flex items-center justify-center shadow-lg",
+                    node.role === "Leader" ? "border-neon-cyan/50 bg-neon-cyan/10 text-neon-cyan" : "border-white/10 bg-white/5 text-white/40"
+                  )}>
+                    <Server className="w-4 h-4" />
+                  </div>
+                  <span className="text-[9px] font-mono text-white/40">{node.label}</span>
+                </div>
+              ))}
+
+              <div className="z-10 w-28 h-28 rounded-full bg-[#050508] border border-neon-cyan/30 shadow-[0_0_45px_rgba(0,245,196,0.18)] flex items-center justify-center">
+                <img src="/logo.svg" alt="MSQE Logo" className="w-16 h-16 object-contain" />
               </div>
             </div>
           </div>
@@ -1350,7 +1439,7 @@ function ViewAbout() {
         <div className="text-center space-y-2"><h2 className="text-2xl font-bold text-white">Development Team</h2><p className="text-white/30 text-sm">The minds behind the engine.</p></div>
         <div className="flex justify-center">
           <div className="glass p-8 rounded-3xl border border-white/10 flex items-center gap-6 max-w-md group hover:border-neon-cyan/30 transition-all">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-cyan to-blue-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg shadow-neon-cyan/20">SA</div>
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-cyan to-blue-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg shadow-neon-cyan/20">SMA</div>
             <div>
               <h3 className="text-xl font-bold text-white group-hover:text-neon-cyan transition-colors">Sayyed Mohammad Adil</h3>
               <p className="text-sm text-white/40 mb-3">Lead Architect & Developer</p>
@@ -1367,10 +1456,29 @@ function ViewAbout() {
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-neon-cyan/5 to-blue-500/5 pointer-events-none" />
         <div className="relative z-10 space-y-6">
           <h2 className="text-3xl font-bold text-white tracking-tight">Ready to scale your infrastructure?</h2>
-          <p className="text-white/40 max-w-xl mx-auto">Explore the documentation or start publishing messages right away using our SDKs and real-time dashboard.</p>
+          <p className="text-white/40 max-w-xl mx-auto">Explore the documentation or start publishing messages with the WebSocket publisher and real-time dashboard.</p>
           <div className="flex justify-center gap-4 pt-4">
-            <button className="px-8 py-4 bg-white text-black font-bold rounded-2xl hover:bg-white/90 transition-all flex items-center gap-2">Get Started <ArrowRight className="w-4 h-4" /></button>
-            <button className="px-8 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-2xl hover:bg-white/10 transition-all">Documentation</button>
+            <button
+              onClick={() =>
+                window.open(
+                  "https://github.com/Sayyed-Mohammad-Adil/msqe-enterprise",
+                  "_blank",
+                  "noopener,noreferrer"
+                )
+              }
+              className="px-8 py-4 bg-white text-black font-bold rounded-2xl hover:bg-white/90 transition-all flex items-center gap-2"
+            >
+              Get Started <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={() =>
+                window.open("https://www.msqe.org/docs", "_blank", "noopener,noreferrer")
+              }
+              className="px-8 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-2xl hover:bg-white/10 transition-all"
+            >
+              Documentation
+            </button>
           </div>
         </div>
       </section>
