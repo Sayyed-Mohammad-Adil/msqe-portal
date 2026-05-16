@@ -23,7 +23,10 @@ export function Footer() {
               Lightweight message queue for modern applications. High-performance, distributed, and zero-infrastructure.
             </p>
             <div className="text-xs text-slate-500 font-mono italic">
-              Built with ♥ by <span className="text-neon-cyan not-italic font-bold">Sayyed Mohammad Adil</span>
+              Built with ♥ by{" "}
+              <a href="https://www.sayyedmohammadadil.online/" target="_blank" rel="noopener noreferrer" className="text-neon-cyan not-italic font-bold hover:underline">
+                Sayyed Mohammad Adil
+              </a>
             </div>
           </div>
 
@@ -70,12 +73,12 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm text-slate-400 hover:text-white transition-colors">
+                <Link href="https://github.com/Sayyed-Mohammad-Adil/msqe-enterprise/releases" target="_blank" className="text-sm text-slate-400 hover:text-white transition-colors">
                   Changelog
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm text-slate-400 hover:text-white transition-colors">
+                <Link href="/docs#roadmap" className="text-sm text-slate-400 hover:text-white transition-colors">
                   Roadmap
                 </Link>
               </li>
@@ -104,7 +107,7 @@ export function Footer() {
               >
                 <span className="font-mono text-xs font-bold">npm</span>
               </Link>
-              <Link href="#" className="p-2 bg-white/5 border border-white/10 rounded-lg text-slate-400 hover:text-white hover:border-white/20 transition-all">
+              <Link href="https://www.msqe.org/" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/5 border border-white/10 rounded-lg text-slate-400 hover:text-white hover:border-white/20 transition-all">
                 <Share2 className="w-5 h-5" />
               </Link>
             </div>
@@ -113,7 +116,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 sm:mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center md:items-start justify-between gap-4 text-xs text-slate-500 font-mono text-center md:text-left">
-          <div className="leading-relaxed">MIT License · v3.0.0 · © {currentYear} <span className="text-neon-cyan">Sayyed Mohammad Adil</span> · MSQE</div>
+          <div className="leading-relaxed">MIT License · v3.0.0 · © {currentYear} <a href="https://www.sayyedmohammadadil.online/" target="_blank" rel="noopener noreferrer" className="text-neon-cyan hover:underline">Sayyed Mohammad Adil</a> · MSQE</div>
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
             <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>
             <Link href="#" className="hover:text-white transition-colors">Terms of Service</Link>

@@ -25,7 +25,7 @@ await publisher.send('orders', data, {
       icon: GitBranch,
       color: "purple" as const,
       code: `const sub = new Subscriber({
-  urls: ['ws://localhost:9090'],
+  urls: ['ws://localhost:9091'],
   topics: ['order.india.#']
   // Matches: order.india.upi
   //          order.india.card.visa
@@ -74,8 +74,8 @@ await publisher.send('payment', data, { qos: 2 })`,
       color: "green" as const,
       code: `const pub = new Publisher({
   urls: [
-    'ws://node-1:9090',
-    'ws://node-2:9090'
+    'ws://node-1:9091',
+    'ws://node-2:9091'
   ],
   autoReconnect: true
 })`,

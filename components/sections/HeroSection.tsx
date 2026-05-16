@@ -88,11 +88,11 @@ export function HeroSection() {
       "",
       "════════════════════════════════",
       "  MSQE v3.0 — Standalone",
-      "  WebSocket  → ws://localhost:9090",
+      "  WebSocket  → ws://localhost:9091",
       "  Admin API  → http://localhost:8081",
-      "  Dashboard  → http://localhost:3000",
+      "  Dashboard  → http://localhost:3030",
       "════════════════════════════════",
-      "✓ Ready. Open http://localhost:3000",
+      "✓ Ready. Open http://localhost:3030",
     ];
 
     let currentLineIndex = 0;
@@ -184,9 +184,9 @@ export function HeroSection() {
 
             {/* npm badges */}
             <div className="flex flex-wrap justify-center lg:justify-start gap-3 mt-6 mb-2">
-              <a 
-                href="https://www.npmjs.com/package/msqe-client" 
-                target="_blank" 
+              <a
+                href="https://www.npmjs.com/package/msqe-client"
+                target="_blank"
                 rel="noopener noreferrer"
               >
                 <img
@@ -195,9 +195,9 @@ export function HeroSection() {
                   className="h-5"
                 />
               </a>
-              <a 
-                href="https://www.npmjs.com/package/msqe-client" 
-                target="_blank" 
+              <a
+                href="https://www.npmjs.com/package/msqe-client"
+                target="_blank"
                 rel="noopener noreferrer"
               >
                 <img
@@ -207,7 +207,7 @@ export function HeroSection() {
                 />
               </a>
               <img
-                src="https://img.shields.io/npm/l/msqe-client?style=flat-square&color=22c55e&labelColor=0f1018&label=license"
+                src="https://img.shields.io/npm/l/msqe-client.svg?style=flat-square&color=22c55e&labelColor=0f1018&label=license&cacheSeconds=3600"
                 alt="MIT License"
                 className="h-5"
               />
@@ -286,13 +286,13 @@ export function HeroSection() {
                 </div>
               </div>
             </div>
-            <motion.div 
+            <motion.div
               className="mt-8 text-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1 }}
             >
-              <button 
+              <button
                 onClick={() => {
                   document.getElementById('install')?.scrollIntoView({ behavior: 'smooth' });
                 }}

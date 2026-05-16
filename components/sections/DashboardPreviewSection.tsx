@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import { SectionHeader } from "../ui/SectionHeader";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from "recharts";
 import { cn } from "@/lib/utils";
@@ -42,11 +42,14 @@ export function DashboardPreviewSection() {
   const [isClicking, setIsClicking] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+
   useEffect(() => { setMounted(true); }, []);
 
   // --- Automation Engine ---
   useEffect(() => {
-    if (!isAuto) return;
+    if (!isAuto || !isInView) return;
     let cancelled = false;
     const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
     
@@ -108,22 +111,22 @@ export function DashboardPreviewSection() {
 
     run();
     return () => { cancelled = true; };
-  }, [isAuto]);
+  }, [isAuto, isInView]);
 
   if (!mounted) return null;
 
   const urlMap: Record<FlowState, string> = {
-    setup_1: "localhost:3000/setup",
-    setup_2: "localhost:3000/setup/admin",
-    setup_3: "localhost:3000/setup/config",
-    setup_4: "localhost:3000/setup/review",
-    setup_5: "localhost:3000/setup/success",
-    login: "localhost:3000/login",
-    dashboard: `localhost:3000/${activeTab}`,
+    setup_1: "localhost:3030/setup",
+    setup_2: "localhost:3030/setup/admin",
+    setup_3: "localhost:3030/setup/config",
+    setup_4: "localhost:3030/setup/review",
+    setup_5: "localhost:3030/setup/success",
+    login: "localhost:3030/login",
+    dashboard: `localhost:3030/${activeTab}`,
   };
 
   return (
-    <section className="py-16 sm:py-24 bg-dark-900 relative">
+    <section id="demo" ref={sectionRef} className="py-16 sm:py-24 bg-dark-900 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <SectionHeader 
@@ -154,7 +157,7 @@ export function DashboardPreviewSection() {
             <AnimatePresence mode="wait">
               {flowState.startsWith("setup") && <SetupSimulator key="setup" step={flowState} setFlowState={setFlowState} username={typedUsername} password={typedPassword} isAuto={isAuto} />}
               {flowState === "login" && <LoginSimulator key="login" username={typedUsername} password={typedPassword} onLogin={() => setFlowState("dashboard")} />}
-              {flowState === "dashboard" && <DashboardSimulator key="dash" activeTab={activeTab} setActiveTab={setActiveTab} isAuto={isAuto} setIsAuto={setIsAuto} />}
+              {flowState === "dashboard" && <DashboardSimulator key="dash" activeTab={activeTab} setActiveTab={setActiveTab} isAuto={isAuto} setIsAuto={setIsAuto} setFlowState={setFlowState} />}
             </AnimatePresence>
 
             {isAuto && (
@@ -212,7 +215,7 @@ function SetupSimulator({ step, setFlowState, username, password, isAuto }: any)
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
               <div className="text-center space-y-2"><h2 className="text-2xl font-bold">Welcome to MSQE</h2><p className="text-slate-500 text-sm">High-performance messaging with zero infrastructure.</p></div>
               <div className="grid grid-cols-2 gap-4">
-                {[ { l: "Ingress", v: "9090", i: Zap, c: "text-amber-400" }, { l: "Admin", v: "8081", i: Cpu, c: "text-blue-400" }, { l: "Console", v: "3000", i: Terminal, c: "text-neon-cyan" }, { l: "Auth", v: "RBAC", i: ShieldCheck, c: "text-green-400" } ].map(item => (
+                {[ { l: "Ingress", v: "9091", i: Zap, c: "text-amber-400" }, { l: "Admin", v: "8081", i: Cpu, c: "text-blue-400" }, { l: "Console", v: "3030", i: Terminal, c: "text-neon-cyan" }, { l: "Auth", v: "RBAC", i: ShieldCheck, c: "text-green-400" } ].map(item => (
                   <div key={item.l} className="p-4 bg-white/5 border border-white/5 rounded-2xl"><item.i className={cn("w-4 h-4 mb-2", item.c)} /><p className="text-[9px] text-white/30 uppercase tracking-widest font-bold">{item.l}</p><p className="text-lg font-mono font-bold">{item.v}</p></div>
                 ))}
               </div>
@@ -300,7 +303,7 @@ function LoginSimulator({ username, password, onLogin }: any) {
 }
 
 // --- Dashboard Simulator ---
-function DashboardSimulator({ activeTab, setActiveTab, isAuto, setIsAuto }: any) {
+function DashboardSimulator({ activeTab, setActiveTab, isAuto, setIsAuto, setFlowState }: any) {
   const [showNotifications, setShowNotifications] = useState(false);
   
   const menuItems = [
@@ -327,7 +330,7 @@ function DashboardSimulator({ activeTab, setActiveTab, isAuto, setIsAuto }: any)
 
   const handleLogout = () => {
     setIsAuto(false);
-    window.location.reload(); 
+    setFlowState("login");
   };
 
   return (
@@ -456,7 +459,7 @@ function DashboardSimulator({ activeTab, setActiveTab, isAuto, setIsAuto }: any)
                     <span className="text-[9px] text-white/40 uppercase tracking-widest font-black">Principal Architect</span>
                   </div>
                   <button 
-                    onClick={() => window.location.reload()}
+                    onClick={handleLogout}
                     className="p-2 bg-white/5 border border-white/10 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-400/10 hover:border-red-400/20 transition-all"
                   >
                     <LogOut className="w-5 h-5" />

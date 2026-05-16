@@ -9,7 +9,7 @@ export function HowItWorksSection() {
     {
       step: 1,
       title: "Publish",
-      body: "Publisher connects via WebSocket to port 9090. Sends typed payload with topic, routingKey, QoS.",
+      body: "Publisher connects via WebSocket to port 9091. Sends typed payload with topic, routingKey, QoS.",
     },
     {
       step: 2,

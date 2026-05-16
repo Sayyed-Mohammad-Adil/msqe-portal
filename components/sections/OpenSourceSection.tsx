@@ -72,20 +72,25 @@ export function OpenSourceSection() {
               </button>
             </div>
           </div>
-          <button className="text-slate-400 hover:text-white transition-colors font-medium">
+          <Link href="/docs" className="text-slate-400 hover:text-white transition-colors font-medium">
             Read the Docs →
-          </button>
+          </Link>
         </div>
         {/* Creator Credit */}
-        <div className="mt-20 pt-12 border-t border-white/5">
-          <p className="text-[11px] font-mono text-slate-600 uppercase tracking-widest mb-4">Designed & Built by</p>
-          <div className="inline-flex items-center gap-4 px-6 py-3 bg-dark-900 border border-white/10 rounded-2xl">
-            <div className="w-9 h-9 rounded-full bg-neon-cyan/20 border border-neon-cyan/30 flex items-center justify-center text-sm font-bold text-neon-cyan font-mono">SM</div>
+        <div className="mt-20 pt-12 border-t border-white/5 flex flex-col items-center sm:block">
+          <p className="text-[11px] font-mono text-slate-600 uppercase tracking-widest mb-4 text-center sm:text-left">Designed & Built by</p>
+          <a 
+            href="https://www.sayyedmohammadadil.online/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-4 px-6 py-3 bg-dark-900 border border-white/10 rounded-2xl hover:bg-dark-800 hover:border-neon-cyan/50 transition-all cursor-pointer group shadow-lg hover:shadow-neon-cyan/10"
+          >
+            <div className="w-9 h-9 rounded-full bg-neon-cyan/20 border border-neon-cyan/30 flex items-center justify-center text-sm font-bold text-neon-cyan font-mono group-hover:scale-110 transition-transform">SMA</div>
             <div className="text-left">
-              <div className="text-sm font-bold text-white">Sayyed Mohammad Adil</div>
-              <div className="text-[10px] text-slate-500 font-mono">Creator · MSQE Engine · CSND Project</div>
+              <div className="text-sm font-bold text-white group-hover:text-neon-cyan transition-colors">Sayyed Mohammad Adil</div>
+              <div className="text-[10px] text-slate-500 font-mono group-hover:text-slate-400 transition-colors">Creator · MSQE</div>
             </div>
-          </div>
+          </a>
         </div>
       </div>
     </section>

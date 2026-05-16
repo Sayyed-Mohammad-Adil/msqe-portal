@@ -96,7 +96,7 @@ export function InstallSection() {
                       <h4 className="font-bold font-sans">Setup Wizard</h4>
                     </div>
                     <p className="text-sm text-slate-400">
-                      Open <span className="text-white font-mono">localhost:3000</span> in your browser. A guided setup wizard will appear on first launch.
+                      Open <span className="text-white font-mono">localhost:3030</span> in your browser. A guided setup wizard will appear on first launch.
                     </p>
                     {/* Visual mockup of the wizard */}
                     <div className="bg-dark-950 rounded-lg border border-white/10 p-4 font-mono text-[10px] space-y-2">
@@ -138,7 +138,7 @@ export function InstallSection() {
                         <tbody className="divide-y divide-white/5">
                           <tr>
                             <td className="px-4 py-3 text-white">Dashboard</td>
-                            <td className="px-4 py-3 text-neon-cyan">3000</td>
+                            <td className="px-4 py-3 text-neon-cyan">3030</td>
                             <td className="px-4 py-3 text-slate-500">HTTP</td>
                           </tr>
                           <tr>
@@ -148,7 +148,7 @@ export function InstallSection() {
                           </tr>
                           <tr>
                             <td className="px-4 py-3 text-white">Broker</td>
-                            <td className="px-4 py-3 text-neon-cyan">9090</td>
+                            <td className="px-4 py-3 text-neon-cyan">9091</td>
                             <td className="px-4 py-3 text-slate-500">WS</td>
                           </tr>
                         </tbody>
@@ -160,7 +160,7 @@ export function InstallSection() {
                     num={4}
                     title="Publish Your First Event"
                     desc="Install the client and send your first event using the Promise-based API."
-                    code={`npm install msqe-client\n\nimport { Publisher } from 'msqe-client'\nconst publisher = new Publisher({ urls: ['ws://localhost:9090'] })\nawait publisher.send('hello', { msg: 'It works!' })`}
+                    code={`npm install msqe-client\n\nimport { Publisher } from 'msqe-client'\nconst publisher = new Publisher({ urls: ['ws://localhost:9091'] })\nawait publisher.send('hello', { msg: 'It works!' })`}
                     color="cyan"
                   />
                 </div>
@@ -198,7 +198,7 @@ export function InstallSection() {
     script: 'dist/index.js',
     env: {
       MSQE_NODE_ID: 'node-1',
-      MSQE_WS_PORT: '9090',
+      MSQE_WS_PORT: '9091',
       MSQE_ADMIN_PORT: '8081',
       MSQE_CLUSTER_PEERS: 'http://localhost:8082,http://localhost:8083',
       MSQE_LOG_DIR: './logs/node-1',
@@ -355,14 +355,14 @@ export function InstallSection() {
                           num={1}
                           title="Dockerfile"
                           desc="Create a basic Dockerfile to containerize the MSQE engine."
-                          code={`FROM node:20-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci --only=production\nCOPY dist/ ./dist/\nRUN mkdir -p logs data\nEXPOSE 9090 8081\nCMD ["node", "dist/index.js"]`}
+                          code={`FROM node:20-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci --only=production\nCOPY dist/ ./dist/\nRUN mkdir -p logs data\nEXPOSE 9091 8081\nCMD ["node", "dist/index.js"]`}
                           color="cyan"
                         />
                         <Step
                           num={2}
                           title="Build & Run"
                           desc="Build the image and launch a single-node container."
-                          code={`# Build image\ndocker build -t msqe:latest ./backend\n\n# Run single node\ndocker run -d \\\n  --name msqe \\\n  -p 9090:9090 \\\n  -p 8081:8081 \\\n  -v msqe-logs:/app/logs \\\n  -v msqe-data:/app/data \\\n  -e MSQE_NODE_ID=node-1 \\\n  -e MSQE_LOG_DIR=/app/logs \\\n  -e MSQE_DATA_FILE=/app/data/msqe-data.json \\\n  msqe:latest`}
+                          code={`# Build image\ndocker build -t msqe:latest ./backend\n\n# Run single node\ndocker run -d \\\n  --name msqe \\\n  -p 9091:9091 \\\n  -p 8081:8081 \\\n  -v msqe-logs:/app/logs \\\n  -v msqe-data:/app/data \\\n  -e MSQE_NODE_ID=node-1 \\\n  -e MSQE_LOG_DIR=/app/logs \\\n  -e MSQE_DATA_FILE=/app/data/msqe-data.json \\\n  msqe:latest`}
                           color="cyan"
                         />
                       </div>
@@ -373,7 +373,7 @@ export function InstallSection() {
                             <h4 className="font-bold font-sans">Open Dashboard</h4>
                           </div>
                           <p className="text-sm text-slate-400">
-                            Open <span className="text-white font-mono">localhost:3000</span> — setup wizard appears on first launch.
+                            Open <span className="text-white font-mono">localhost:3030</span> — setup wizard appears on first launch.
                           </p>
                           <div className="bg-dark-950 rounded-lg border border-white/10 p-4 font-mono text-[10px] space-y-2">
                             <div className="flex justify-between border-b border-white/5 pb-1">
@@ -413,7 +413,7 @@ export function InstallSection() {
                             num={1}
                             title="docker-compose.yml"
                             desc="Define a 3-node high-availability cluster with a shared UI."
-                            code={`version: "3.9"\n\nservices:\n  msqe-node-1:\n    build: ./backend\n    container_name: msqe-node-1\n    environment:\n      MSQE_NODE_ID: node-1\n      MSQE_WS_PORT: "9090"\n      MSQE_ADMIN_PORT: "8081"\n      MSQE_PUBLIC_URL: http://msqe-node-1:8081\n      MSQE_CLUSTER_PEERS: http://msqe-node-2:8081,http://msqe-node-3:8081\n      MSQE_CLUSTER_SECRET: your_32char_secret_minimum\n    ports:\n      - "9090:9090"\n      - "8081:8081"\n    volumes:\n      - msqe-logs-1:/app/logs\n      - msqe-data:/app/data\n    networks: [msqe-net]\n\n  msqe-node-2:\n    build: ./backend\n    container_name: msqe-node-2\n    environment:\n      MSQE_NODE_ID: node-2\n      MSQE_WS_PORT: "9091"\n      MSQE_ADMIN_PORT: "8082"\n      MSQE_PUBLIC_URL: http://msqe-node-2:8081\n      MSQE_CLUSTER_PEERS: http://msqe-node-1:8081,http://msqe-node-3:8081\n      MSQE_CLUSTER_SECRET: your_32char_secret_minimum\n    ports:\n      - "9091:9091"\n      - "8082:8082"\n    volumes:\n      - msqe-logs-2:/app/logs\n      - msqe-data:/app/data\n    networks: [msqe-net]\n\n  msqe-ui:\n    build: ./msqe-ui\n    ports:\n      - "3000:3000"\n    networks: [msqe-net]\n\nnetworks:\n  msqe-net:\n    driver: bridge\n\nvolumes:\n  msqe-logs-1:\n  msqe-logs-2:\n  msqe-data:`}
+                            code={`version: "3.9"\n\nservices:\n  msqe-node-1:\n    build: ./backend\n    container_name: msqe-node-1\n    environment:\n      MSQE_NODE_ID: node-1\n      MSQE_WS_PORT: "9091"\n      MSQE_ADMIN_PORT: "8081"\n      MSQE_PUBLIC_URL: http://msqe-node-1:8081\n      MSQE_CLUSTER_PEERS: http://msqe-node-2:8081,http://msqe-node-3:8081\n      MSQE_CLUSTER_SECRET: your_32char_secret_minimum\n    ports:\n      - "9091:9091"\n      - "8081:8081"\n    volumes:\n      - msqe-logs-1:/app/logs\n      - msqe-data:/app/data\n    networks: [msqe-net]\n\n  msqe-node-2:\n    build: ./backend\n    container_name: msqe-node-2\n    environment:\n      MSQE_NODE_ID: node-2\n      MSQE_WS_PORT: "9091"\n      MSQE_ADMIN_PORT: "8082"\n      MSQE_PUBLIC_URL: http://msqe-node-2:8081\n      MSQE_CLUSTER_PEERS: http://msqe-node-1:8081,http://msqe-node-3:8081\n      MSQE_CLUSTER_SECRET: your_32char_secret_minimum\n    ports:\n      - "9091:9091"\n      - "8082:8082"\n    volumes:\n      - msqe-logs-2:/app/logs\n      - msqe-data:/app/data\n    networks: [msqe-net]\n\n  msqe-ui:\n    build: ./msqe-ui\n    ports:\n      - "3030:3030"\n    networks: [msqe-net]\n\nnetworks:\n  msqe-net:\n    driver: bridge\n\nvolumes:\n  msqe-logs-1:\n  msqe-logs-2:\n  msqe-data:`}
                             color="purple"
                           />
                         </div>
@@ -424,7 +424,7 @@ export function InstallSection() {
                               <div className="p-4 rounded-2xl bg-dark-950 border border-neon-blue/30 text-center relative group">
                                 <div className="text-[10px] text-neon-blue font-bold mb-1 flex items-center justify-center gap-1">★ Leader</div>
                                 <div className="text-xs font-mono text-white">node-1</div>
-                                <div className="text-[9px] text-slate-600 mt-1">:9090 / :8081</div>
+                                <div className="text-[9px] text-slate-600 mt-1">:9091 / :8081</div>
                               </div>
                               <div className="p-4 rounded-2xl bg-dark-950 border border-white/10 text-center opacity-60">
                                 <div className="text-[10px] text-slate-500 mb-1">Follower</div>
@@ -439,7 +439,7 @@ export function InstallSection() {
                               <div className="p-4 rounded-2xl bg-dark-950 border border-white/10 text-center border-dashed">
                                 <div className="text-[10px] text-slate-500 mb-1">UI</div>
                                 <div className="text-xs font-mono text-white">Dashboard</div>
-                                <div className="text-[9px] text-slate-600 mt-1">:3000</div>
+                                <div className="text-[9px] text-slate-600 mt-1">:3030</div>
                               </div>
                             </div>
                             <div className="mt-8 p-4 bg-neon-amber/5 border border-neon-amber/20 rounded-xl">

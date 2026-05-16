@@ -24,7 +24,7 @@ export function DemoSection() {
     publisher: `import { Publisher } from 'msqe-client'
 
 const publisher = new Publisher({
-  urls: ['ws://localhost:9090'],
+  urls: ['ws://localhost:9091'],
   autoReconnect: true,
 })
 
@@ -40,7 +40,7 @@ console.log('Acknowledged:', ack)`,
     subscriber: `import { Subscriber, MessageEnvelope } from 'msqe-client'
 
 const sub = new Subscriber({
-  urls: ['ws://localhost:9090'],
+  urls: ['ws://localhost:9091'],
   topics: ['orderCreated'],
   autoReconnect: true,
   qos: 1,
@@ -59,7 +59,7 @@ sub.run({
 // 3 workers compete — each message processed ONCE
 for (let i = 1; i <= 3; i++) {
   const worker = new Subscriber({
-    urls: ['ws://localhost:9090'],
+    urls: ['ws://localhost:9091'],
     topics: ['orderCreated'],
     groupId: 'fulfilment-service',
     qos: 1,
@@ -77,9 +77,9 @@ for (let i = 1; i <= 3; i++) {
 // Cluster-aware client with automatic leader hunting
 const publisher = new Publisher({
   urls: [
-    'ws://node-1:9090', // Node A
-    'ws://node-2:9090', // Node B
-    'ws://node-3:9090', // Node C
+    'ws://node-1:9091', // Node A
+    'ws://node-2:9091', // Node B
+    'ws://node-3:9091', // Node C
   ],
   autoReconnect: true,
   reconnectDelay: 1000

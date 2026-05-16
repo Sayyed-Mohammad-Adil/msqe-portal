@@ -23,7 +23,7 @@ const navLinks = [
   { name: "Features", href: "#features" },
   { name: "System", href: "#how-it-works" },
   { name: "Setup", href: "#install" },
-  { name: "Deploy", href: "#docker" },
+  // { name: "Deploy", href: "#docker" },
   { name: "Live", href: "#demo" },
   { name: "Cluster", href: "#cluster" },
   { name: "Stats", href: "#compare" },

@@ -31,7 +31,7 @@ npm run dev
 Open:
 
 ```text
-http://localhost:3000
+http://localhost:3030
 ```
 
 ## Build
@@ -56,7 +56,7 @@ npx tsc --noEmit
 
 | Script | Description |
 |---|---|
-| `npm run dev` | Start website dev server on port 3000 |
+| `npm run dev` | Start website dev server on port 3030 |
 | `npm run build` | Build the website |
 | `npm run start` | Start built website |
 | `npm run lint` | Run ESLint |
@@ -76,10 +76,10 @@ npx tsc --noEmit
 
 | App | URL |
 |---|---|
-| Public website | `http://localhost:3000` |
+| Public website | `http://localhost:3030` |
 | Admin dashboard | `http://localhost:3030` |
 | Engine Admin API | `http://localhost:8081` |
-| Engine WebSocket | `ws://localhost:9090` |
+| Engine WebSocket | `ws://localhost:9091` |
 
 ## Notes
 
