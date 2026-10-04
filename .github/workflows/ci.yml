@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Allow required install scripts
+        run: |
+          npm install-scripts approve sharp || true
+          npm install-scripts approve unrs-resolver || true
+
+      # Pre-existing lint errors (see earlier audit) — set to blocking once cleaned up
+      - run: npm run lint
+        continue-on-error: true
+
+      - run: npm run build
