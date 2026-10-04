@@ -53,16 +53,21 @@ jobs:
         run: echo "IMAGE=ghcr.io/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            set -e
-            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker pull ${{ env.IMAGE }}:latest
-            docker stop msqe-portal || true
-            docker rm msqe-portal || true
-            docker run -d --name msqe-portal --restart unless-stopped -p 80:3000 ${{ env.IMAGE }}:latest
-            docker image prune -f
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          GHCR_PAT: ${{ secrets.GHCR_PAT }}
+        run: |
+          set -e
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$EC2_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new "$EC2_USER@$EC2_HOST" \
+            "echo '$GHCR_PAT' | docker login ghcr.io -u ${{ github.actor }} --password-stdin && \
+             docker pull ${{ env.IMAGE }}:latest && \
+             (docker stop msqe-portal || true) && \
+             (docker rm msqe-portal || true) && \
+             docker run -d --name msqe-portal --restart unless-stopped -p 80:3000 ${{ env.IMAGE }}:latest && \
+             docker image prune -f"
