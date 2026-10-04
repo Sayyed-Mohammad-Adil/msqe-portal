@@ -67,5 +67,5 @@ jobs:
             "docker pull ${{ env.IMAGE }}:latest && \
              (docker stop msqe-portal || true) && \
              (docker rm msqe-portal || true) && \
-             docker run -d --name msqe-portal --restart unless-stopped -p 3000:3000 ${{ env.IMAGE }}:latest && \
+             docker run -d --name msqe-portal --restart unless-stopped -p 80:3000 ${{ env.IMAGE }}:latest && \
              docker image prune -f"
