@@ -9,7 +9,7 @@ Deployment is fully automated via GitHub Actions. Every push to `main` builds, p
   1. Builds a Docker image and pushes it to **GitHub Container Registry (GHCR)** with tags `latest`, `main`, and the commit SHA.
   2. Creates a GitHub Release with auto-generated notes.
   3. SSHes into the EC2 instance, pulls `:latest`, and replaces the running container (published on host port `80`).
-- **Runtime on EC2** — Docker container (`msqe-portal`) listening directly on port `80` → container port `3000`. nginx is optional (use it if you want HTTPS termination).
+- **Runtime on EC2** — Docker container (`msqe-portal`) on host port `3000`, behind **nginx** (`:80`/`:443`, TLS via Let's Encrypt).
 
 ```
 GitHub push → GHCR (ghcr.io/<owner>/<repo>) → EC2 (docker run :3000) → nginx → internet
@@ -69,8 +69,17 @@ docker run -d --name msqe-portal --restart unless-stopped -p 80:3000 \
 
 ```bash
 sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d example.com -d www.example.com
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 ```
+
+nginx config for HTTPS (from this repo):
+```bash
+sudo cp deploy/nginx-ssl.conf /etc/nginx/sites-available/msqe-portal
+sudo ln -sf /etc/nginx/sites-available/msqe-portal /etc/nginx/sites-enabled/
+sudo sed -i 's/yourdomain.com/<your-domain>/g' /etc/nginx/sites-available/msqe-portal
+sudo nginx -t && sudo systemctl reload nginx
+```
+Then container must publish port `3000` on the host (workflow already does).
 
 ## Local Docker build/test
 
